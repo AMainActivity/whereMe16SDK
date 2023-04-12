@@ -173,7 +173,7 @@ class MyForegroundService : LifecycleService() {
             //   var json = JSONObject()
             val d = lifecycleScope.async(Dispatchers.IO) {
                 val res = repo.getLocations4Net()
-                //  Log.e("res", res.toString())
+                  Log.e("res", res.toString())
                 for (i in res.indices) {
                     idList.add(res[i]._id)
                 }
@@ -190,6 +190,12 @@ class MyForegroundService : LifecycleService() {
                  )*/
                 val json1 = Gson().toJson(DatasToJson(repo.getWmUserInfoSetings().tokenJwt, res))
                 Log.e("Gson", json1.toString())
+                Log.e("Gson2","SettingsUserInfoDomModel(tokenJwt='${repo.getWmUserInfoSetings().tokenJwt}', " +
+                        "posId=${repo.getWmUserInfoSetings().posId}, " +
+                        "famId=${repo.getWmUserInfoSetings().famId}, " +
+                        "name=${repo.getWmUserInfoSetings().name}, " +
+                        "url=${repo.getWmUserInfoSetings().url}, " +
+                        "isActivate=${repo.getWmUserInfoSetings().isActivate})")
                 RequestBody.create(
                     MediaType.parse("application/json"), json1
                         .toString()
