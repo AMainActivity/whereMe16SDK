@@ -2,6 +2,7 @@ package ru.ama.whereme16SDK.presentation
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import ru.ama.whereme16SDK.presentationn.ViewModelSplash
@@ -23,10 +24,26 @@ class SplashActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory)[ViewModelSplash::class.java]
        // startActivity(Intent(this, MainActivity::class.java))
        // finish()
-         viewModel.canStart.observe(this) {
+         /*viewModel.canStart.observe(this) {
              startActivity(Intent(this, MainActivity::class.java))
              finish()
-         }
+         }*/
+
+        viewModel.canStart.observe(this) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+        viewModel.isError.observe(this) {
+            Toast.makeText(
+                this,
+                "ошибка, неизвестное устройство ",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+
+        }
+
+
     }
 
 
