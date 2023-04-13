@@ -57,20 +57,6 @@ class SettingsFragment : Fragment() {
     }
 
 
-    /* override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
-         menuInflater.inflate(R.menu.menu_set_fragment, menu)
-     }
-
-     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-         return when (item.itemId) {
-             R.id.menu_set_frgmnt -> {
-                 saveSettings()
-                 true
-             }
-             else -> super.onOptionsItemSelected(item)
-         }
-     }*/
 
     private fun setActionBarSubTitle(txt: String) {
         (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = txt
@@ -298,7 +284,7 @@ class SettingsFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 workingTimeModel = viewModel.getWorkingTime()
                 if (s.length > 0) {
-                    if (s.toString().toInt() >= 50) {
+                    if (s.toString().toInt() >= 20) {
                         viewModel.setWorkingTime(
                             workingTimeModel.copy(
                                 timeOfWaitAccuracy = s.toString().toInt()
@@ -306,7 +292,7 @@ class SettingsFragment : Fragment() {
                         )
                         binding.frgmntSetTimeAcEt.error = null
                     } else
-                        binding.frgmntSetTimeAcEt.error = "введите число больше 50"
+                        binding.frgmntSetTimeAcEt.error = "введите число больше 20"
                 } else
                     binding.frgmntSetTimeAcEt.error = "введите"
 
@@ -318,7 +304,7 @@ class SettingsFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 workingTimeModel = viewModel.getWorkingTime()
                 if (s.length > 0) {
-                    if (s.toString().toInt() >= 20) {
+                    if (s.toString().toInt() >= 15) {
                         viewModel.setWorkingTime(
                             workingTimeModel.copy(
                                 timeOfWorkingWM = s.toString().toInt()
@@ -326,7 +312,7 @@ class SettingsFragment : Fragment() {
                         )
                         binding.frgmntSetTimePovtorEt.error = null
                     } else
-                        binding.frgmntSetTimePovtorEt.error = "введите число больше 20"
+                        binding.frgmntSetTimePovtorEt.error = "введите число больше 15"
                 } else
                     binding.frgmntSetTimePovtorEt.error = "введите"
             }

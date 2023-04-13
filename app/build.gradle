@@ -31,6 +31,7 @@ android {
     buildTypes.each {
         it.buildConfigField 'String', "BASE_URL", baseUrl
         it.buildConfigField 'String', "GKK_CHECK_KOD", gkk_ChechKod
+        it.buildConfigField 'String', "GKK_CHECK_PHONE", gkk_check_phone
         it.buildConfigField 'String', "GKK_CHECK_TOKEN", gkk_checkToken
         it.buildConfigField 'String', "GKK_LOG_OUT", gkk_Logout
         it.buildConfigField 'String', "GKK_WRITE_LOC_DATAS", gkk_WriteLocDatas

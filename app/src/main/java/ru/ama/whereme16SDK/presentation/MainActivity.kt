@@ -47,8 +47,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         startService()
-        val profileInFragment = ProfileInFragment()
-        val profileOutFragment = ProfileOutFragment()
+       /* val profileInFragment = ProfileInFragment()
+        val profileOutFragment = ProfileOutFragment()*/
 
         val mapFragment = MapFragment()
         val setFragment = SettingsFragment()
@@ -58,12 +58,12 @@ class MainActivity : AppCompatActivity() {
             when (it.itemId) {
                 R.id.page_1 -> setCurrentFragment(mapFragment)
                 R.id.page_2 -> setCurrentFragment(setFragment)
-                R.id.page_3 -> {
+                /*R.id.page_3 -> {
                     Log.e("checkIsActivate", viewModel.checkIsActivate().toString())
                    // if (viewModel.checkIsActivate())
                         setCurrentFragment(if (viewModel.checkIsActivate()) profileOutFragment else profileInFragment)
 
-                }
+                }*/
                 R.id.page_4 -> setCurrentFragment(aboutFragment)
             }
             true

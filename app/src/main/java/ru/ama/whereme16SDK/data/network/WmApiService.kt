@@ -10,18 +10,13 @@ import ru.ama.whereme16SDK.data.network.model.JsonJwtDto
 
 interface WmApiService {
 
-    @POST(BuildConfig.GKK_CHECK_KOD)
+    @POST(BuildConfig.GKK_CHECK_PHONE)
     suspend fun chekcKod(
         @Body request: RequestBody
     ): Response<JsonJwtDto>
 
     @POST(BuildConfig.GKK_CHECK_TOKEN)
     suspend fun checkToken(
-        @Body request: RequestBody
-    ): Response<JsonDto>
-
-    @POST(BuildConfig.GKK_LOG_OUT)
-    suspend fun logOut(
         @Body request: RequestBody
     ): Response<JsonDto>
 

@@ -24,8 +24,6 @@ interface ApplicationComponent {
     fun inject(alarmClockStart: AlarmClockStart)
     fun inject(fragment: SettingsFragment)
     fun inject(fragment: MapFragment)
-    fun inject(fragment: ProfileInFragment)
-    fun inject(fragment: ProfileOutFragment)
     fun inject(fragment: AboutFragment)
     fun inject(myForegroundService: MyForegroundService)
     fun inject(application: MyApp)

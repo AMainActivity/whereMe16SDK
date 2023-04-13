@@ -296,18 +296,6 @@ class WmRepositoryImpl @Inject constructor(
         return res
     }
 
-    override suspend fun logOut(request: RequestBody): ResponseEntity {
-        val responc = apiService.logOut(request)
-        val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
-
-        val res = ResponseEntity(
-            mBody,
-            responc.isSuccessful,
-            responc.errorBody(),
-            responc.code()
-        )
-        return res
-    }
 
     override suspend fun GetLocationsFromBd(): LiveData<List<LocationDb>> {
         return Transformations.map(locationDao.getLocations()) {
@@ -317,19 +305,19 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
-fun updateIsWrite(idList: List<Long>) {
+    fun updateIsWrite(idList: List<Long>) {
         return locationDao.updateQuery(idList)
     }
 
     suspend fun getLocations4Net(): List<LocationDb> {
-        val res = (locationDao.getLocations4Net()).map { mapper.mapDbModelToEntity(it) }	
+        val res = (locationDao.getLocations4Net()).map { mapper.mapDbModelToEntity(it) }
         return res
     }
-	
-	
-	 suspend fun writeLoc4Net(request: RequestBody): ResponseEntity {
+
+
+    suspend fun writeLoc4Net(request: RequestBody): ResponseEntity {
         val responc = apiService.writeLocDatas(request)
-         Log.e("writeLoc4Net", responc.toString())
+        Log.e("writeLoc4Net", responc.toString())
         val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
 
         val res = ResponseEntity(
@@ -340,7 +328,7 @@ fun updateIsWrite(idList: List<Long>) {
         )
         return res
     }
-	
+
 
     override suspend fun loadData(): List<Int> {
         var listOfItems: MutableList<Int> = mutableListOf<Int>()
@@ -382,9 +370,11 @@ fun updateIsWrite(idList: List<Long>) {
     private fun updateValueDb(id: Int, newInfo: String): Int {
         return locationDao.updateLocationById(id, newInfo)
     }
+
     fun getLastValue1(): List<LocationDbModel> {
         return locationDao.getLastValu1e()
     }
+
     private fun getLastValueFromDb(): LocationDbModel {
         return locationDao.getLastValue(getCurrentDate())
     }
@@ -396,13 +386,13 @@ fun updateIsWrite(idList: List<Long>) {
         return formatter.format(calendar.getTime())
     }
 
-     fun df():String{
-        val curUtc=System.currentTimeMillis()
+    fun df(): String {
+        val curUtc = System.currentTimeMillis()
         val formatter = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val calendar = java.util.Calendar.getInstance()
         calendar.setTimeInMillis(curUtc)
-        val curCal= formatter.format(calendar.getTime())
-        val curUtc1=formatter.format(curUtc)
+        val curCal = formatter.format(calendar.getTime())
+        val curUtc1 = formatter.format(curUtc)
         // val formatter = SimpleDateFormat("dd.MM.yyyy")
         return "curUtc:$curUtc # curUtc1:$curUtc1 \n cal:${calendar.timeInMillis} # curCal:$curCal"
     }
@@ -414,16 +404,17 @@ fun updateIsWrite(idList: List<Long>) {
         return formatter.format(System.currentTimeMillis())
     }
 
-     fun getCurrentDateMil(): String {
-         val formatter = SimpleDateFormat("dd.MM.yyyy")
+    fun getCurrentDateMil(): String {
+        val formatter = SimpleDateFormat("dd.MM.yyyy")
         return formatter.format(System.currentTimeMillis())
     }
-     fun getCurrentDate(): String {
+
+    fun getCurrentDate(): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy")
         return formatter.format(Date())
     }
 
-    suspend fun saveLocation(location: Location,lTime:Long) {
+    suspend fun saveLocation(location: Location, lTime: Long) {
         val res = LocationDbModel(
             lTime.toString(),
             lTime,
@@ -445,7 +436,7 @@ fun updateIsWrite(idList: List<Long>) {
     private inner class Callback : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
             super.onLocationResult(result)
-val lTime=System.currentTimeMillis()
+            val lTime = System.currentTimeMillis()
             if (mBestLoc.longitude == 0.0 || result.lastLocation.accuracy < mBestLoc.accuracy) {
                 mBestLoc.latitude = result.lastLocation.latitude
                 mBestLoc.longitude = result.lastLocation.longitude
@@ -565,6 +556,7 @@ val lTime=System.currentTimeMillis()
             false
         )
     )
+
     override fun getWmUserInfoSetings(): SettingsUserInfoDomModel {
         return mapperUserInfoSettings.mapDataModelToDomain(
             Gson().fromJson(
@@ -610,7 +602,7 @@ val lTime=System.currentTimeMillis()
             } else
                 editor.commit()
         }
-   var jwToken: String
+    var jwToken: String
         get() {
             val k: String
             if (mSettings.contains(APP_PREFERENCES_jwt)) {

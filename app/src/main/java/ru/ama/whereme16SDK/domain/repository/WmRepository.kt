@@ -28,11 +28,7 @@ interface WmRepository {
     fun getWmUserInfoSetings(): SettingsUserInfoDomModel
     fun setWmUserInfoSetings(set:SettingsUserInfoDomModel)
 
-   // fun getIsActivate(): Boolean
-    //fun setIsActivate(b:Boolean)
-
     suspend fun checkWmJwToken(request : RequestBody):ResponseEntity
-    suspend fun logOut(request : RequestBody):ResponseEntity
 
     suspend fun getLastLocation(): Location?
     suspend fun checkKod(request : RequestBody): ResponseJwtEntity

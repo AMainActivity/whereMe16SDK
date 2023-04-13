@@ -1,5 +1,7 @@
 package ru.ama.whereme16SDK.presentationn
 
+import android.app.Application
+import android.provider.Settings.Secure
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,15 +18,17 @@ import ru.ama.whereme16SDK.domain.entity.SettingsUserInfoDomModel
 import ru.ama.whereme16SDK.domain.usecase.*
 import javax.inject.Inject
 
+
 class ViewModelSplash @Inject constructor(
     private val checkJwtTokenUseCase: CheckJwtTokenUseCase,
     private val checkKodUseCase: CheckKodUseCase,
     private val getJwtFromSetingsUseCase: GetJwtFromSetingsUseCase,
     private val setWmJwTokenUseCase: SetJwTokenUseCase,
     private val getJwTokenUseCase: GetJwTokenUseCase,
+    private val app:Application,
     private val repositoryImpl: WmRepositoryImpl
 ) : ViewModel() {
-    private var wmTokenInfoModel: SettingsUserInfoDomModel
+    private lateinit var wmTokenInfoModel: SettingsUserInfoDomModel
 
     private val _isSuccess = MutableLiveData<JsonJwt>()
     val isSuccess: LiveData<JsonJwt>
@@ -32,9 +36,13 @@ class ViewModelSplash @Inject constructor(
     private val _isError = MutableLiveData<Unit>()
     val isError: LiveData<Unit>
         get() = _isError
+    private val android_id by lazy{ Secure.getString(
+        app.getContentResolver(),
+        Secure.ANDROID_ID
+    )}
     init {
-        wmTokenInfoModel = getJwTokenUseCase()
         Log.e("datetime", repositoryImpl.df())
+        Log.e("tokenJwt",getJwtFromSetingsUseCase().tokenJwt)
 
         if (getJwtFromSetingsUseCase().tokenJwt.length>3)
             checkJwt(getJwtFromSetingsUseCase().tokenJwt)
@@ -67,7 +75,8 @@ class ViewModelSplash @Inject constructor(
 
     private fun checkKod(kod: String) {
         val json = JSONObject()
-        json.put("kod", "3bd97dde-d8ff-11ed-9d1d-901b0ecbcd5f11223")
+        json.put("phoneId", android_id)
+        json.put("phoneName", "phoneName2")
         val requestBody: RequestBody =
             RequestBody.create(MediaType.parse("application/json"), json.toString())
 
@@ -83,6 +92,7 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
             if (response.respIsSuccess) {
                 response.mBody?.let {
                     if (it.error == false && it.message.equals("1")) {
+                        Log.e("tokenJwt2",it.toString())
                         saveUserInfo(it)
                         checkJwt(getJwtFromSetingsUseCase().tokenJwt)//_isSuccess.value = it
                     } else
@@ -125,6 +135,7 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
             Log.e("mBody", response.mBody.toString())
             if (response.respIsSuccess) {
                 response.mBody?.let {
+        wmTokenInfoModel = getJwTokenUseCase()
                     setWmJwTokenUseCase(
                         wmTokenInfoModel.copy(
                             isActivate = (it.message).equals("1")

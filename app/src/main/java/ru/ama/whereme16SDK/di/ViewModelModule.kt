@@ -23,14 +23,7 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(SettingsViewModel::class)
     fun bindSettingsViewModel(viewModel: SettingsViewModel): ViewModel
- @Binds
-    @IntoMap
-    @ViewModelKey(ProfileInViewModel::class)
-    fun bindProfileViewModel(viewModel: ProfileInViewModel): ViewModel
- @Binds
-    @IntoMap
-    @ViewModelKey(ProfileOutViewModel::class)
-    fun bindProfileOutViewModel(viewModel: ProfileOutViewModel): ViewModel
+
  @Binds
     @IntoMap
     @ViewModelKey(AboutViewModel::class)
