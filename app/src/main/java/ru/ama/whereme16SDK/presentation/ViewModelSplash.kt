@@ -1,6 +1,7 @@
 package ru.ama.whereme16SDK.presentationn
 
 import android.app.Application
+import android.os.Build
 import android.provider.Settings.Secure
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -76,7 +77,7 @@ class ViewModelSplash @Inject constructor(
     private fun checkKod(kod: String) {
         val json = JSONObject()
         json.put("phoneId", android_id)
-        json.put("phoneName", "phoneName2")
+        json.put("phoneName", "${Build.BRAND} ${Build.MODEL} ${Build.ID}")
         val requestBody: RequestBody =
             RequestBody.create(MediaType.parse("application/json"), json.toString())
 
@@ -134,8 +135,8 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
             Log.e("checkJwt", response.toString())
             Log.e("mBody", response.mBody.toString())
             if (response.respIsSuccess) {
+                wmTokenInfoModel = getJwTokenUseCase()
                 response.mBody?.let {
-        wmTokenInfoModel = getJwTokenUseCase()
                     setWmJwTokenUseCase(
                         wmTokenInfoModel.copy(
                             isActivate = (it.message).equals("1")

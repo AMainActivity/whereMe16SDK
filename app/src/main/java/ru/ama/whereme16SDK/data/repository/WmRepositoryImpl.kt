@@ -274,7 +274,7 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getLocationById(mDate: String): LiveData<List<LocationDb>> {
+    override suspend fun getLocationById(mDate: String): LiveData< List<LocationDb>> {
         Log.e("getLocationById", mDate)
         return Transformations.map(locationDao.getLocationsById(mDate)) {
             it.map {
@@ -310,7 +310,11 @@ class WmRepositoryImpl @Inject constructor(
     }
 
     suspend fun getLocations4Net(): List<LocationDb> {
-        val res = (locationDao.getLocations4Net()).map { mapper.mapDbModelToEntity(it) }
+        val d=getWmUserInfoSetings().posId
+        val dd=d.toString()
+        val res = (locationDao.getLocations4Net(if (dd.length<=8) d else (dd.substring(0,8).toInt()))).map { mapper.mapDbModelToEntity(it) }
+        Log.e("getLocations4Net","posid=$d")
+        Log.e("getLocations4Net","LocationDb={$res}")
         return res
     }
 

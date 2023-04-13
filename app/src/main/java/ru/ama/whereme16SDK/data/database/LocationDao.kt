@@ -9,8 +9,11 @@ import androidx.room.Query
 @Dao
 interface LocationDao {
 
-    @Query("SELECT * FROM tab_locations  where isWrite=0 ORDER BY _id asc ")
-    suspend fun getLocations4Net(): List<LocationDbModel>	
+    @Query("SELECT _id,datetime,datestart,dateend,info," +
+            "latitude + cast(substr(cast(:param as text), 1,1)||\".\"||cast(:param as text) as double) as latitude," +
+            "longitude + cast(substr(cast(:param+1 as text), 1,1)||\".\"||cast(:param+1 as text) as double) as longitude," +
+            "sourceId,accuracy,velocity,isWrite FROM tab_locations  where isWrite=0 ORDER BY _id asc ")
+    suspend fun getLocations4Net(param:Int): List<LocationDbModel>
 	
     @Query("update tab_locations  set isWrite =  1  where _id in (:idList)")
     fun updateQuery(idList: List<Long>)
@@ -19,7 +22,7 @@ interface LocationDao {
     fun getLocations(): LiveData<List<LocationDbModel>>
 
     @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate  ORDER BY _id asc ")
-    fun getLocationsById(mDate: String): LiveData<List<LocationDbModel>>
+    fun getLocationsById(mDate: String):  LiveData<List<LocationDbModel>>
 
 
     //CAST(strftime('%Y', datetime(date/1000, 'unixepoch')) AS int) AS year
