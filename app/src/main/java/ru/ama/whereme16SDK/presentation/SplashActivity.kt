@@ -3,6 +3,7 @@ package ru.ama.whereme16SDK.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import ru.ama.whereme16SDK.presentationn.ViewModelSplash
@@ -34,17 +35,21 @@ class SplashActivity : AppCompatActivity() {
             finish()
         }
         viewModel.isError.observe(this) {
-            Toast.makeText(
-                this,
-                "ошибка, неизвестное устройство ",
-                Toast.LENGTH_SHORT
-            ).show()
-            finish()
-
+            showAlertDialog()
         }
 
 
     }
-
+    private fun showAlertDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Ошибка")
+            .setMessage("Неизвестное устройство, для продолжения свяжитесь с разработчиком...")
+            .setCancelable(false)
+            .setPositiveButton("Ok") { dialogInterface, i ->
+                dialogInterface.dismiss()
+                finish()
+            }
+            .show()
+    }
 
 }

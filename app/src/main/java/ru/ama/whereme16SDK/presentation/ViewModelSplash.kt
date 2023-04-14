@@ -26,26 +26,29 @@ class ViewModelSplash @Inject constructor(
     private val getJwtFromSetingsUseCase: GetJwtFromSetingsUseCase,
     private val setWmJwTokenUseCase: SetJwTokenUseCase,
     private val getJwTokenUseCase: GetJwTokenUseCase,
-    private val app:Application,
+    private val app: Application,
     private val repositoryImpl: WmRepositoryImpl
 ) : ViewModel() {
     private lateinit var wmTokenInfoModel: SettingsUserInfoDomModel
 
     private val _isSuccess = MutableLiveData<JsonJwt>()
     val isSuccess: LiveData<JsonJwt>
-    get() = _isSuccess
+        get() = _isSuccess
     private val _isError = MutableLiveData<Unit>()
     val isError: LiveData<Unit>
         get() = _isError
-    private val android_id by lazy{ Secure.getString(
-        app.getContentResolver(),
-        Secure.ANDROID_ID
-    )}
+    private val android_id by lazy {
+        Secure.getString(
+            app.getContentResolver(),
+            Secure.ANDROID_ID
+        )
+    }
+
     init {
         Log.e("datetime", repositoryImpl.df())
-        Log.e("tokenJwt",getJwtFromSetingsUseCase().tokenJwt)
+        Log.e("tokenJwt", getJwtFromSetingsUseCase().tokenJwt)
 
-        if (getJwtFromSetingsUseCase().tokenJwt.length>3)
+        if (getJwtFromSetingsUseCase().tokenJwt.length > 3)
             checkJwt(getJwtFromSetingsUseCase().tokenJwt)
         else
             checkKod("")
@@ -93,7 +96,7 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
             if (response.respIsSuccess) {
                 response.mBody?.let {
                     if (it.error == false && it.message.equals("1")) {
-                        Log.e("tokenJwt2",it.toString())
+                        Log.e("tokenJwt2", it.toString())
                         saveUserInfo(it)
                         checkJwt(getJwtFromSetingsUseCase().tokenJwt)//_isSuccess.value = it
                     } else
@@ -117,14 +120,13 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
             }
 
 
-
         }
     }
 
-    private fun checkJwt(kod:String) {
+    private fun checkJwt(kod: String) {
         val json = JSONObject()
         json.put("kod", kod)
-        Log.e("kod",kod)
+        Log.e("kod", kod)
         val requestBody: RequestBody =
             RequestBody.create(MediaType.parse("application/json"), json.toString())
 
@@ -145,8 +147,7 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
                     // setIsActivateUseCase(it.message.equals("1"))
                 }
                 _canStart.value = Unit
-            }
-            else {
+            } else {
                 try {
                     val jObjError = JSONObject(response.respError?.string())
 
