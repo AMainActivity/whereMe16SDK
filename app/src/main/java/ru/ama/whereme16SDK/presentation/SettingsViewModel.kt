@@ -10,10 +10,7 @@ class SettingsViewModel @Inject constructor(
     private val getWorkingTimeUseCase: GetWorkingTimeUseCase,
     private val сheckServiceUseCase: CheckServiceUseCase,
     private val setWorkingTimeUseCase: SetWorkingTimeUseCase,
-    private val runAlarmClockUseCase: RunAlarmClockUseCase,
-    private val cancalAlarmClockUseCase: CancalAlarmClockUseCase,
-    private val cancalAlarmServiceUseCase: CancalAlarmServiceUseCase,
-    private val isTimeToGetLocatonUseCase: IsTimeToGetLocatonUseCase
+    private val cancalAlarmServiceUseCase: CancalAlarmServiceUseCase
 
 ) : ViewModel() {
 
@@ -25,35 +22,20 @@ class SettingsViewModel @Inject constructor(
         return getWorkingTimeUseCase()
     }
 
-
-fun runAlarmClock()
-{
-	runAlarmClockUseCase()
-}
-fun cancelAlarmClock()
-{
-    cancalAlarmClockUseCase()
-}
-fun cancelAlarmService()
-{
-    cancalAlarmServiceUseCase()
-}
+    fun cancelAlarmService() {
+        cancalAlarmServiceUseCase()
+    }
 
     fun сheckService(): Boolean {
         Log.e("fromSet", сheckServiceUseCase(MyForegroundService::class.java).toString())
         return сheckServiceUseCase(MyForegroundService::class.java)
     }
 
-    fun isTimeToGetLocaton():Boolean{
-        return isTimeToGetLocatonUseCase()
-    }
+
 
     fun setWorkingTime(dm: SettingsDomModel) {
         setWorkingTimeUseCase(dm)
     }
-
-
-
 
 
 }

@@ -37,7 +37,6 @@ import ru.ama.whereme16SDK.data.mapper.WmMapperByDays
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
 import ru.ama.whereme16SDK.data.mapper.WmMapperUserInfoSettings
 import ru.ama.whereme16SDK.data.workers.Alarm
-import ru.ama.whereme16SDK.data.workers.AlarmClockStart
 import ru.ama.whereme16SDK.di.ApplicationScope
 import ru.ama.whereme16SDK.domain.entity.*
 import ru.ama.whereme16SDK.domain.repository.WmRepository
@@ -80,27 +79,6 @@ class WmRepositoryImpl @Inject constructor(
     val isEnathAccuracy: LiveData<Boolean>
         get() = _isEnathAccuracy
 
-    private fun compare2Times(start: String, end: String): Boolean {
-        var res = false
-        val sdf = SimpleDateFormat("HH:mm")
-        val strDate = sdf.parse(start)
-        val endDate = sdf.parse(end)
-        if (endDate.time >= strDate.time) {
-            res = true
-        }
-        Log.e("compare2Times", "$strDate ### $endDate %%% $res")
-        return res
-    }
-
-
-    fun isCurTimeBetweenSettings(): Boolean {
-        val wTime = getWorkingTime()
-        return (compare2Times(wTime.start, getCurrentTime()) && compare2Times(
-            getCurrentTime(),
-            wTime.end
-        ))
-    }
-
 
     override suspend fun checkKod(request: RequestBody): ResponseJwtEntity {
         val responc = apiService.chekcKod(request)
@@ -119,39 +97,6 @@ class WmRepositoryImpl @Inject constructor(
         return res
     }
 
-    override fun IsTimeToGetLocaton(): Boolean {
-        var result = false
-        val wTime = getWorkingTime()
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = System.currentTimeMillis()
-        when (calendar[Calendar.DAY_OF_WEEK]) {
-            Calendar.MONDAY -> {
-                result = wTime.days[0].equals("1")
-            }
-            Calendar.TUESDAY -> {
-                result = wTime.days[1].equals("1")
-            }
-            Calendar.WEDNESDAY -> {
-                result = wTime.days[2].equals("1")
-            }
-            Calendar.THURSDAY -> {
-                result = wTime.days[3].equals("1")
-            }
-            Calendar.FRIDAY -> {
-                result = wTime.days[4].equals("1")
-            }
-            Calendar.SATURDAY -> {
-                result = wTime.days[5].equals("1")
-            }
-            Calendar.SUNDAY -> {
-                result = wTime.days[6].equals("1")
-            }
-        }
-
-        result = result && isCurTimeBetweenSettings()
-        Log.e("IsTimeToGetLocaton", result.toString())
-        return result
-    }
 
     override fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = application.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -178,40 +123,6 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
-
-    override fun runAlarmClock() {
-        Log.e("runAlarmClock", "AlarmClock")
-        val wTime = getWorkingTime()
-        val am = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(application, AlarmClockStart::class.java)
-        val pi = PendingIntent.getBroadcast(application, 0, i, 0)
-        val calendar: Calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, wTime.start.split(":")[0].toInt())
-            set(Calendar.MINUTE, wTime.start.split(":")[1].toInt())
-        }
-        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1)
-        }
-        am.cancel(pi)
-        am.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            24 * 60 * 60 * 1000,
-            pi
-        )
-        setWorkingTime(wTime.copy(isEnable = true))
-    }
-
-    override fun cancelAlarmClock() {
-        Log.e("runAlarmClock", "cancelAlarmClock")
-        val intent = Intent(application, AlarmClockStart::class.java)
-        val sender = PendingIntent.getBroadcast(application, 0, intent, 0)
-        val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(sender)
-        setWorkingTime(getWorkingTime().copy(isEnable = false))
-        //cancelAlarm()
-    }
 
     override fun runAlarm(timeInterval: Long) {
 
@@ -274,7 +185,7 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getLocationById(mDate: String): LiveData< List<LocationDb>> {
+    override suspend fun getLocationById(mDate: String): LiveData<List<LocationDb>> {
         Log.e("getLocationById", mDate)
         return Transformations.map(locationDao.getLocationsById(mDate)) {
             it.map {
@@ -310,11 +221,13 @@ class WmRepositoryImpl @Inject constructor(
     }
 
     suspend fun getLocations4Net(): List<LocationDb> {
-        val d=getWmUserInfoSetings().posId
-        val dd=d.toString()
-        val res = (locationDao.getLocations4Net(if (dd.length<=8) d else (dd.substring(0,8).toInt()))).map { mapper.mapDbModelToEntity(it) }
-        Log.e("getLocations4Net","posid=$d")
-        Log.e("getLocations4Net","LocationDb={$res}")
+        val d = getWmUserInfoSetings().posId
+        val dd = d.toString()
+        val res = (locationDao.getLocations4Net(
+            if (dd.length <= 8) d else (dd.substring(0, 8).toInt())
+        )).map { mapper.mapDbModelToEntity(it) }
+        Log.e("getLocations4Net", "posid=$d")
+        Log.e("getLocations4Net", "LocationDb={$res}")
         return res
     }
 
@@ -540,14 +453,10 @@ class WmRepositoryImpl @Inject constructor(
 
     val defaultTime = Gson().toJson(
         SettingsDataModel(
-            listOf("1", "1", "1", "1", "1", "1", "1"),
-            "09:00",
-            "17:00",
             50,
             50,
             60,
-            120,
-            false
+            120
         )
     )
     val defaultUserInfo = Gson().toJson(
@@ -652,7 +561,6 @@ class WmRepositoryImpl @Inject constructor(
     private companion object {
         val APP_PREFERENCES_worktime = "worktime"
         val APP_PREFERENCES_jwt = "jwt"
-        val APP_PREFERENCES_IS_ACTIVATE = "IS_ACTIVATE"
     }
 
 }

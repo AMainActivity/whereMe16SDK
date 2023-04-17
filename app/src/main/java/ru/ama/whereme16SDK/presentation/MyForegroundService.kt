@@ -249,9 +249,6 @@ java.net.SocketTimeoutException: failed to connect to*/
     }
 
     private fun reRunGetLocations() {
-        if (!repo.isCurTimeBetweenSettings())
-            stopSelf()
-		else
             repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
     }
 

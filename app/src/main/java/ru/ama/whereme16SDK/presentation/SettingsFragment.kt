@@ -73,20 +73,6 @@ class SettingsFragment : Fragment() {
 
     }
 
-    fun getHourFromSet(id: Int): String {
-        workingTimeModel = viewModel.getWorkingTime()
-        val start = workingTimeModel.start.split(":")
-        val end = workingTimeModel.end.split(":")
-        var res = ""
-        when (id) {
-            1 -> res = start[0]
-            2 -> res = start[1]
-            3 -> res = end[0]
-            4 -> res = end[1]
-
-        }
-        return res
-    }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -94,8 +80,7 @@ class SettingsFragment : Fragment() {
 
         (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = "Настройки"
         viewModel = ViewModelProvider(this, viewModelFactory)[SettingsViewModel::class.java]
-        setDays()
-        binding.frgmntSetSwitchAc.isChecked = workingTimeModel.isEnable
+        workingTimeModel = viewModel.getWorkingTime()
         binding.frgmntSetSwitchStart.isChecked = viewModel.сheckService()
         binding.frgmntSetSwitchStart.setOnClickListener { view ->
             if (!viewModel.сheckService()) {
@@ -116,123 +101,8 @@ class SettingsFragment : Fragment() {
                 viewModel.cancelAlarmService()
             }
         }
-        binding.frgmntSetSwitchAc.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked) {
-                Toast.makeText(requireContext(), "будильник установлен", Toast.LENGTH_SHORT)
-                    .show()
-                viewModel.runAlarmClock()
-                Log.e("frgmntSetSwitchAc", "будильник установлен")
-            } else {
-                Log.e("frgmntSetSwitchAc", "будильник отключен")
-                viewModel.cancelAlarmClock()
-                // requireContext().stopService(MyForegroundService.newIntent(requireContext()))
-
-            }
-        })
 
 
-        binding.frgmntSetButStart.setText(
-            "${getHourFromSet(1)}:${getHourFromSet(2)}", null
-        )
-        binding.frgmntSetButEnd.setText(
-            "${getHourFromSet(3)}:${getHourFromSet(4)}", null
-        )
-        binding.frgmntSetButStart.setOnClickListener {
-            workingTimeModel = viewModel.getWorkingTime()
-            var h = ""
-            var m = ""
-            val timePickerDialog =
-                TimePickerDialog(requireContext(), { view, hourOfDay, minute ->
-
-                    h =
-                        if (hourOfDay.toString().length == 1) "0" + (hourOfDay).toString() else (hourOfDay).toString()
-                    m =
-                        if (minute.toString().length == 1) "0" + minute.toString() else minute.toString()
-                    Log.e("Time", "$h:$m")
-                    if (!compare2Times("$h:$m", workingTimeModel.end))
-                        Toast.makeText(
-                            requireContext(),
-                            "время должо быть раньше времени конца: ${workingTimeModel.end}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    else {
-                        viewModel.setWorkingTime(
-                            workingTimeModel.copy(
-                                start = "$h:$m",
-                                isEnable = true
-                            )
-                        )
-                        if (binding.frgmntSetSwitchAc.isChecked)
-                            viewModel.runAlarmClock() else
-                            binding.frgmntSetSwitchAc.isChecked = true
-                        binding.frgmntSetButStart.setText(
-                            "$h:$m", null
-                        )
-                    }
-                    //     viewModel.setWorkingTime(workingTimeModel.copy(start = "$h:$m"))
-                }, getHourFromSet(1).toInt(), getHourFromSet(2).toInt(), true)
-            // timePickerDialog.window!!.attributes.windowAnimations =
-            //    R.style.dialog_animation_addslovoFU
-            timePickerDialog.show()
-            timePickerDialog.setOnDismissListener {
-
-                /*  binding.frgmntSetButStart.setText(
-                      "$h:$m",null
-                  )*/
-
-            }
-        }
-        binding.frgmntSetButEnd.setOnClickListener {
-            workingTimeModel = viewModel.getWorkingTime()
-            var h = ""
-            var m = ""
-            val timePickerDialog =
-                TimePickerDialog(
-                    requireContext(),
-                    { view, hourOfDay, minute ->
-                        h =
-                            if (hourOfDay.toString().length == 1) "0" + (hourOfDay).toString() else (hourOfDay).toString()
-                        m =
-                            if (minute.toString().length == 1) "0" + minute.toString() else minute.toString()
-                        Log.e("endTime", "$h:$m")
-
-                        if (!compare2Times(workingTimeModel.start, "$h:$m"))
-                            Toast.makeText(
-                                requireContext(),
-                                "время должо быть позже времени старта: ${workingTimeModel.start}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        else {
-                            viewModel.setWorkingTime(
-                                workingTimeModel.copy(
-                                    end = "$h:$m",
-                                    isEnable = true
-                                )
-                            )
-                            if (binding.frgmntSetSwitchAc.isChecked)
-                                viewModel.runAlarmClock() else
-                                binding.frgmntSetSwitchAc.isChecked = true
-                            binding.frgmntSetButEnd.setText(
-                                "$h:$m", null
-                            )
-                        }
-                        // viewModel.setWorkingTime(workingTimeModel.copy(end = "$h:$m"))
-                    },
-                    getHourFromSet(3).toInt(),
-                    getHourFromSet(4).toInt(),
-                    true
-                )
-            // timePickerDialog.window!!.attributes.windowAnimations =
-            //   R.style.dialog_animation_addslovoFU
-            timePickerDialog.show()
-            /* timePickerDialog.setOnDismissListener {
-
-                 binding.frgmntSetButEnd.setText(
-                     "$h:$m",null
-                 )
-
-             }*/
-        }
         setOtherSettings()
 
         binding.frgmntSetMdEt.addTextChangedListener(object : TextWatcher {
@@ -342,64 +212,11 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun compare2Times(start: String, end: String): Boolean {
-        var res = false
-        val sdf = SimpleDateFormat("HH:mm")
-        val strDate = sdf.parse(start)
-        val endDate = sdf.parse(end)
-        if (endDate.time > strDate.time) {
-            res = true
-        }
-        Log.e("compare2Times", "$strDate ### $endDate %%% $res")
-        return res
-    }
 
-    private fun setDays() {
-        workingTimeModel = viewModel.getWorkingTime()
-        val listOfDays = workingTimeModel.days
-        listOfCheckBox = listOf(
-            binding.frgmntSetCbD1,
-            binding.frgmntSetCbD2,
-            binding.frgmntSetCbD3,
-            binding.frgmntSetCbD4,
-            binding.frgmntSetCbD5,
-            binding.frgmntSetCbD6,
-            binding.frgmntSetCbD7
-        )
-        for (cb in listOfCheckBox) {
-            cb.setOnCheckedChangeListener { buttonView, isChecked ->
-                saveSettings()
-            }
-        }
-        if (listOfDays.size == listOfCheckBox.size) {
-            for (i in listOfDays.indices) {
-                listOfCheckBox[i].isChecked = listOfDays[i].equals("1")
-            }
-        }
 
-    }
 
-    private fun saveSettings() {
-        var listOfDays1: MutableList<String> = mutableListOf<String>()
-        for (cb in listOfCheckBox) {
-            listOfDays1.add((cb.isChecked).toIntTxt())
-        }
-        workingTimeModel = viewModel.getWorkingTime()
 
-        viewModel.setWorkingTime(workingTimeModel.copy(days = listOfDays1))
-        /*viewModel.setWorkingTime(
-            SettingsDomModel(
-                listOfDays1,
-                binding.frgmntSetButStart.text.toString(),
-                binding.frgmntSetButEnd.text.toString(),
-                binding.frgmntSetMdEt.text.toString().toInt(),
-                binding.frgmntSetAccurEt.text.toString().toInt(),
-                binding.frgmntSetTimeAcEt.text.toString().toInt(),
-                binding.frgmntSetTimePovtorEt.text.toString().toInt(),
-                isEnable = workingTimeModel.isEnable
-            )
-        )*/
-    }
+
 
     override fun onDestroy() {
         super.onDestroy()

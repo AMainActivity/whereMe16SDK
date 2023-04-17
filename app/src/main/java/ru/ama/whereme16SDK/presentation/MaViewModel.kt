@@ -5,8 +5,6 @@ import ru.ama.whereme16SDK.domain.usecase.*
 import javax.inject.Inject
 
 class MaViewModel @Inject constructor(
-    private val runAlarmUseCase: RunAlarmUseCase,
-    private val getIsActivateUseCase: GetIsActivateUseCase,
     private val getJwTokenUseCase: GetJwTokenUseCase
 ) : ViewModel() {
 

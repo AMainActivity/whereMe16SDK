@@ -59,13 +59,13 @@
                     android:layout_margin="5dp"
                     android:paddingLeft="15dp"
                     android:text="Начать слежение" />
-                    <com.google.android.material.switchmaterial.SwitchMaterial
+                    <!--com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/frgmnt_set_switch_ac"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
                         android:paddingLeft="15dp"
-                        android:text="Будильник" />
+                        android:text="Будильник" /-->
 
                 <!--androidx.appcompat.widget.AppCompatButton
                     android:text="Рабочие дни"
@@ -75,7 +75,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     ></androidx.appcompat.widget.AppCompatButton-->
-                    <com.google.android.material.textview.MaterialTextView
+                    <!--com.google.android.material.textview.MaterialTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Рабочие дни"/>
@@ -224,8 +224,8 @@
                         </LinearLayout>
 
 
-                    </HorizontalScrollView>
-                    <LinearLayout
+                    </HorizontalScrollView-->
+                    <!--LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_gravity="center"
                         android:layout_height="wrap_content"
@@ -253,7 +253,7 @@
                     android:layout_height="wrap_content"
                     ></com.google.android.material.button.MaterialButton>
 
-                    </LinearLayout>
+                    </LinearLayout-->
                     <com.google.android.material.textfield.TextInputLayout
 
                         android:id="@+id/frgmnt_set_md_l"

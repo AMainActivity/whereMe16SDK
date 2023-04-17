@@ -47,6 +47,4 @@ interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocation(mLoc: LocationDbModel)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLocationList(locList: List<LocationDbModel>): List<Long>
 }
