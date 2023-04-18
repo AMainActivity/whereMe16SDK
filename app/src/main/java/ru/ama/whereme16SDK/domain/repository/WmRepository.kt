@@ -19,7 +19,7 @@ interface WmRepository {
     fun runAlarm(timeInterval: Long)
     fun cancelAlarm()
 
-    fun getWorkingTime(): SettingsDomModel
+    fun getSettingsModel(): SettingsDomModel
     fun setWorkingTime(dm:SettingsDomModel)
 
     fun getWmUserInfoSetings(): SettingsUserInfoDomModel

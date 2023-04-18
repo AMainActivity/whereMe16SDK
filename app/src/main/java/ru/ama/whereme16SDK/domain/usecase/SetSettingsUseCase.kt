@@ -4,7 +4,7 @@ import ru.ama.whereme16SDK.domain.entity.SettingsDomModel
 import ru.ama.whereme16SDK.domain.repository.WmRepository
 import javax.inject.Inject
 
-class SetWorkingTimeUseCase @Inject constructor(
+class SetSettingsUseCase @Inject constructor(
     private val repository: WmRepository
 ) {
 

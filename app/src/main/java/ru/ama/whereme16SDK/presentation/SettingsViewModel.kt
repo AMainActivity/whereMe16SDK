@@ -7,19 +7,19 @@ import ru.ama.whereme16SDK.domain.usecase.*
 import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor(
-    private val getWorkingTimeUseCase: GetWorkingTimeUseCase,
+    private val getSettingsUseCase: GetSettingsUseCase,
     private val сheckServiceUseCase: CheckServiceUseCase,
-    private val setWorkingTimeUseCase: SetWorkingTimeUseCase,
+    private val setSettingsUseCase: SetSettingsUseCase,
     private val cancalAlarmServiceUseCase: CancalAlarmServiceUseCase
 
 ) : ViewModel() {
 
     init {
-        Log.e("SettingsViewModel", getWorkingTimeUseCase().toString())
+        Log.e("SettingsViewModel", getSettingsUseCase().toString())
     }
 
     fun getWorkingTime(): SettingsDomModel {
-        return getWorkingTimeUseCase()
+        return getSettingsUseCase()
     }
 
     fun cancelAlarmService() {
@@ -34,7 +34,7 @@ class SettingsViewModel @Inject constructor(
 
 
     fun setWorkingTime(dm: SettingsDomModel) {
-        setWorkingTimeUseCase(dm)
+        setSettingsUseCase(dm)
     }
 
 

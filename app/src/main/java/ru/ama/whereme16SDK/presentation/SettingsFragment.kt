@@ -1,7 +1,6 @@
 package ru.ama.whereme16SDK.presentation
 
 import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
@@ -11,8 +10,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.widget.CompoundButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.core.content.ContextCompat
@@ -20,7 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import ru.ama.whereme16SDK.databinding.FragmentSettingsBinding
 import ru.ama.whereme16SDK.domain.entity.SettingsDomModel
-import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 
@@ -30,7 +26,6 @@ class SettingsFragment : Fragment() {
     private val binding
         get() = _binding ?: throw RuntimeException("FragmentSettingsBinding == null")
     private lateinit var viewModel: SettingsViewModel
-    private var listOfCheckBox = listOf<AppCompatCheckBox>()
     private val component by lazy {
         (requireActivity().application as MyApp).component
     }
@@ -48,20 +43,12 @@ class SettingsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // setHasOptionsMenu(true)
         requireActivity().bindService(
             MyForegroundService.newIntent(requireContext()),
             serviceConnection,
             0
         )
     }
-
-
-
-    private fun setActionBarSubTitle(txt: String) {
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = txt
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -84,16 +71,10 @@ class SettingsFragment : Fragment() {
         binding.frgmntSetSwitchStart.isChecked = viewModel.сheckService()
         binding.frgmntSetSwitchStart.setOnClickListener { view ->
             if (!viewModel.сheckService()) {
-                //  if (viewModel.isTimeToGetLocaton())
                 ContextCompat.startForegroundService(
                     requireContext(),
                     MyForegroundService.newIntent(requireContext())
                 )
-                /* else {
-                     Toast.makeText(requireContext(), "будильник установлен", Toast.LENGTH_SHORT)
-                         .show()
-                     viewModel.runAlarmClock()
-                 }*/
                 Log.e("frgmntSetSwitchStart", "isMyServiceRunning")
             } else {
                 Log.e("frgmntSetSwitchStart", "isMyServiceRunningFalse")
@@ -107,13 +88,11 @@ class SettingsFragment : Fragment() {
 
         binding.frgmntSetMdEt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                workingTimeModel = viewModel.getWorkingTime()
-            }
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable) {
                 workingTimeModel = viewModel.getWorkingTime()
-                if (s.length > 0) {
+                if (s.isNotEmpty()) {
                     if (s.toString().toInt() >= 10) {
                         viewModel.setWorkingTime(
                             workingTimeModel.copy(
@@ -133,7 +112,7 @@ class SettingsFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable) {
                 workingTimeModel = viewModel.getWorkingTime()
-                if (s.length > 0) {
+                if (s.isNotEmpty()) {
                     if (s.toString().toInt() >= 50) {
                         viewModel.setWorkingTime(
                             workingTimeModel.copy(
@@ -153,7 +132,7 @@ class SettingsFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable) {
                 workingTimeModel = viewModel.getWorkingTime()
-                if (s.length > 0) {
+                if (s.isNotEmpty()) {
                     if (s.toString().toInt() >= 20) {
                         viewModel.setWorkingTime(
                             workingTimeModel.copy(
@@ -173,7 +152,7 @@ class SettingsFragment : Fragment() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 workingTimeModel = viewModel.getWorkingTime()
-                if (s.length > 0) {
+                if (s.isNotEmpty()) {
                     if (s.toString().toInt() >= 15) {
                         viewModel.setWorkingTime(
                             workingTimeModel.copy(
@@ -204,7 +183,7 @@ class SettingsFragment : Fragment() {
             val binder = (service as? MyForegroundService.LocalBinder) ?: return
             val foregroundService = binder.getService()
             foregroundService.isServiseAlive = { flag ->
-                binding.frgmntSetSwitchStart.isChecked = flag //viewModel.сheckService()
+                binding.frgmntSetSwitchStart.isChecked = flag
             }
         }
 
@@ -212,18 +191,11 @@ class SettingsFragment : Fragment() {
         }
     }
 
-
-
-
-
-
-
     override fun onDestroy() {
         super.onDestroy()
         requireActivity().unbindService(serviceConnection)
     }
 
-    private fun Boolean.toIntTxt() = if (this) "1" else "0"
 
     override fun onDestroyView() {
         super.onDestroyView()

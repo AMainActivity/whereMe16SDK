@@ -170,7 +170,7 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    override fun getWorkingTime(): SettingsDomModel {
+    override fun getSettingsModel(): SettingsDomModel {
         return mapperSetTime.mapDataModelToDomain(
             Gson().fromJson(
                 worktime,
@@ -258,7 +258,7 @@ class WmRepositoryImpl @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
-        workingTimeModel = getWorkingTime()
+        workingTimeModel = getSettingsModel()
         mBestLoc.latitude = 0.0
         mBestLoc.longitude = 0.0
         mBestLoc.accuracy = 1500f

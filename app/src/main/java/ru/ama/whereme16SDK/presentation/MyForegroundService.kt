@@ -55,7 +55,7 @@ class MyForegroundService : LifecycleService() {
     }
 
     fun startGetLocations() {
-        workingTimeModel = repo.getWorkingTime()
+        workingTimeModel = repo.getSettingsModel()
         isEnath = false
         val isGooglePlayServicesAvailab = lifecycleScope.async(Dispatchers.IO) {
             repo.isGooglePlayServicesAvailable()
