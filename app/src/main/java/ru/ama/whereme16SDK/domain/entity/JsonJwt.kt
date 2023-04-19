@@ -18,8 +18,8 @@ data class JsonJwt(
 
 
 data class ResponseJwtEntity(
-    val mBody: JsonJwt?=null,
+    val mBody: JsonJwt? = null,
     val respIsSuccess: Boolean,
-    val respError:ResponseBody?=null,
-    val respCode:Int
+    val respError: ResponseBody? = null,
+    val respCode: Int
 )

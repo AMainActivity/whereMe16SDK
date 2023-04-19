@@ -6,8 +6,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SettingsDomModel(
-  var minDist: Int,
-  var accuracy: Int,
-  var timeOfWaitAccuracy: Int,
-  var timeOfWorkingWM: Int
+    var minDist: Int,
+    var accuracy: Int,
+    var timeOfWaitAccuracy: Int,
+    var timeOfWorkingWM: Int
 ) : Parcelable

@@ -8,5 +8,5 @@ class CheckJwtTokenUseCase @Inject constructor(
     private val repository: WmRepository
 ) {
 
-    operator suspend fun invoke(request : RequestBody) = repository.checkWmJwToken(request)
+    operator suspend fun invoke(request: RequestBody) = repository.checkWmJwToken(request)
 }

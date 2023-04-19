@@ -162,14 +162,6 @@ class WmRepositoryImpl @Inject constructor(
         alarmManager.cancel(sender)
     }
 
-
-    override suspend fun getGropingDays(): List<LocationDbByDays> {
-        return locationDao.getLocationsByDays().map {
-            mapperByDays.mapDbModelToEntity(it)
-        }
-    }
-
-
     override fun getSettingsModel(): SettingsDomModel {
         return mapperSetTime.mapDataModelToDomain(
             Gson().fromJson(
@@ -208,14 +200,6 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun GetLocationsFromBd(): LiveData<List<LocationDb>> {
-        return Transformations.map(locationDao.getLocations()) {
-            it.map {
-                mapper.mapDbModelToEntity(it)
-            }
-        }
-    }
-
     fun updateIsWrite(idList: List<Long>) {
         return locationDao.updateQuery(idList)
     }
@@ -245,16 +229,6 @@ class WmRepositoryImpl @Inject constructor(
         )
         return res
     }
-
-
-    override suspend fun loadData(): List<Int> {
-        var listOfItems: MutableList<Int> = mutableListOf<Int>()
-
-        return listOfItems
-
-
-    }
-
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
@@ -434,23 +408,6 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    @SuppressLint("MissingPermission")
-    override suspend fun getLastLocation(): Location? {
-        var ddsf: Location? = null
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener {
-            ddsf = it
-            it.let { Log.e("getflpc", "$it") }
-        }
-        return ddsf
-    }
-
-
-    override suspend fun stopData(): Int {
-        stopLocationUpdates()
-        return 1
-    }
-
-
     val defaultTime = Gson().toJson(
         SettingsDataModel(
             50,
@@ -482,17 +439,6 @@ class WmRepositoryImpl @Inject constructor(
     override fun setWmUserInfoSetings(dm: SettingsUserInfoDomModel) {
         jwToken = Gson().toJson(mapperUserInfoSettings.mapDomainToDataModel(dm))
     }
-    /*override fun getWmJwToken() = jwToken
-
-    override fun setWmJwToken(jwt: String) {
-        jwToken = jwt
-    }
-
-    override fun getIsActivate() = isActivate
-
-    override fun setIsActivate(b: Boolean) {
-        isActivate = b
-    }*/
 
     var worktime: String?
         get() {
@@ -500,7 +446,7 @@ class WmRepositoryImpl @Inject constructor(
             if (mSettings.contains(APP_PREFERENCES_worktime)) {
                 k = mSettings.getString(
                     APP_PREFERENCES_worktime,
-                    defaultTime/*"{\"days\":\"1;1;1;1;1;1;1\",\"start\":\"09:00\",\"end\":\"17:00\"}"*/
+                    defaultTime
                 )
             } else
                 k = defaultTime
@@ -536,27 +482,6 @@ class WmRepositoryImpl @Inject constructor(
             } else
                 editor.commit()
         }
-    /*var isActivate: Boolean
-        get() {
-            val k: Boolean
-            if (mSettings.contains(APP_PREFERENCES_IS_ACTIVATE)) {
-                k = mSettings.getBoolean(
-                    APP_PREFERENCES_IS_ACTIVATE,
-                    false
-                )
-            } else
-                k = false
-            return k
-        }
-        @SuppressLint("NewApi")
-        set(k) {
-            val editor = mSettings.edit()
-            editor.putBoolean(APP_PREFERENCES_IS_ACTIVATE, k)
-            if (android.os.Build.VERSION.SDK_INT > 9) {
-                editor.apply()
-            } else
-                editor.commit()
-        }*/
 
     private companion object {
         val APP_PREFERENCES_worktime = "worktime"

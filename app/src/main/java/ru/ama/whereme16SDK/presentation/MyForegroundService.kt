@@ -5,12 +5,20 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.*
+import android.os.Binder
+import android.os.Build
+import android.os.CountDownTimer
+import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import com.google.gson.Gson
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import org.json.JSONObject
@@ -28,7 +36,6 @@ class MyForegroundService : LifecycleService() {
 
     private lateinit var workingTimeModel: SettingsDomModel
     private var isEnath = false
-    var isServiseAlive: ((Boolean) -> Unit)? = null
     private val component by lazy {
         (application as MyApp).component
     }
@@ -135,24 +142,24 @@ class MyForegroundService : LifecycleService() {
                 repo.stopLocationUpdates()
                 if (repo.mBestLoc.longitude != 0.0)
                     lifecycleScope.launch(Dispatchers.IO) {
-                        repo.saveLocation(repo.mBestLoc,repo.mBestLoc.time)
+                        repo.saveLocation(repo.mBestLoc, repo.mBestLoc.time)
                     }
                 sendData4Net()
-               /* if (!repo.isCurTimeBetweenSettings())
-                    stopSelf()
-                else {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        sendData4Net()
-                        // Log.e("getLocations4Net", s)*/
-                     //   repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
-                  //  }
-                    cancelTimer(
-                        getString(R.string.app_name),
-                        "не было найдено, скоро повтор " + repo.getDate(
-                            Calendar.getInstance().getTime().time
-                        )
+                /* if (!repo.isCurTimeBetweenSettings())
+                     stopSelf()
+                 else {
+                     lifecycleScope.launch(Dispatchers.IO) {
+                         sendData4Net()
+                         // Log.e("getLocations4Net", s)*/
+                //   repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
+                //  }
+                cancelTimer(
+                    getString(R.string.app_name),
+                    "не было найдено, скоро повтор " + repo.getDate(
+                        Calendar.getInstance().getTime().time
                     )
-               // }
+                )
+                // }
             }
         }
         timer?.start()
@@ -173,7 +180,7 @@ class MyForegroundService : LifecycleService() {
             //   var json = JSONObject()
             val d = lifecycleScope.async(Dispatchers.IO) {
                 val res = repo.getLocations4Net()
-                  Log.e("res", res.toString())
+                Log.e("res", res.toString())
                 for (i in res.indices) {
                     idList.add(res[i]._id)
                 }
@@ -190,12 +197,15 @@ class MyForegroundService : LifecycleService() {
                  )*/
                 val json1 = Gson().toJson(DatasToJson(repo.getWmUserInfoSetings().tokenJwt, res))
                 Log.e("Gson", json1.toString())
-                Log.e("Gson2","SettingsUserInfoDomModel(tokenJwt='${repo.getWmUserInfoSetings().tokenJwt}', " +
-                        "posId=${repo.getWmUserInfoSetings().posId}, " +
-                        "famId=${repo.getWmUserInfoSetings().famId}, " +
-                        "name=${repo.getWmUserInfoSetings().name}, " +
-                        "url=${repo.getWmUserInfoSetings().url}, " +
-                        "isActivate=${repo.getWmUserInfoSetings().isActivate})")
+                Log.e(
+                    "Gson2",
+                    "SettingsUserInfoDomModel(tokenJwt='${repo.getWmUserInfoSetings().tokenJwt}', " +
+                            "posId=${repo.getWmUserInfoSetings().posId}, " +
+                            "famId=${repo.getWmUserInfoSetings().famId}, " +
+                            "name=${repo.getWmUserInfoSetings().name}, " +
+                            "url=${repo.getWmUserInfoSetings().url}, " +
+                            "isActivate=${repo.getWmUserInfoSetings().isActivate})"
+                )
                 RequestBody.create(
                     MediaType.parse("application/json"), json1
                         .toString()
@@ -205,37 +215,35 @@ class MyForegroundService : LifecycleService() {
                 val sdsd = d.await()
                 Log.e("idList", idList.size.toString())
                 if (idList.size > 0) {
-                    try{
+                    try {
 
                         Log.e("Gson2", sdsd.toString())
-                    val response = repo.writeLoc4Net(sdsd)
-                    Log.e("responseCode", response.respCode.toString())
-                    Log.e("response", response.toString())
-                    if (response.respIsSuccess) {
-                        response.mBody?.let {
-                            if (it.error == false && it.message.length > 0) {
-                                repo.updateIsWrite(idList)
+                        val response = repo.writeLoc4Net(sdsd)
+                        Log.e("responseCode", response.respCode.toString())
+                        Log.e("response", response.toString())
+                        if (response.respIsSuccess) {
+                            response.mBody?.let {
+                                if (it.error == false && it.message.length > 0) {
+                                    repo.updateIsWrite(idList)
+                                }
+                                reRunGetLocations()
+                            }
+                        } else {
+                            try {
+                                val jObjError = JSONObject(response.respError?.string())
+
+                                Log.e(
+                                    "responseError",
+                                    jObjError.toString()/*.getJSONObject("error").getString("message")*/
+                                )
+                            } catch (e: Exception) {
+                                Log.e("responseError", e.message.toString())
                             }
                             reRunGetLocations()
                         }
-                    } else {
-                        try {
-                            val jObjError = JSONObject(response.respError?.string())
-
-                            Log.e(
-                                "responseError",
-                                jObjError.toString()/*.getJSONObject("error").getString("message")*/
-                            )
-                        } catch (e: Exception) {
-                            Log.e("responseError", e.message.toString())
-                        }
+                    } catch (e: Exception) {
                         reRunGetLocations()
                     }
-                }
-                catch (e:Exception)
-                {
-                    reRunGetLocations()
-                }
                 } else
                     reRunGetLocations()
 
@@ -249,7 +257,7 @@ java.net.SocketTimeoutException: failed to connect to*/
     }
 
     private fun reRunGetLocations() {
-            repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
+        repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
     }
 
     private fun cancelTimer(title: String, txtBody: String) {
@@ -267,8 +275,8 @@ java.net.SocketTimeoutException: failed to connect to*/
         super.onCreate()
         log("onCreate")
         createNotificationChannel()
-        Log.e("getCurrentDateMil",repo.getCurrentDateMil())
-        Log.e("getCurrentDate",repo.getCurrentDate())
+        Log.e("getCurrentDateMil", repo.getCurrentDateMil())
+        Log.e("getCurrentDate", repo.getCurrentDate())
         startForeground(NOTIFICATION_ID, notificationBuilder.build())
     }
 
@@ -276,14 +284,13 @@ java.net.SocketTimeoutException: failed to connect to*/
         super.onStartCommand(intent, flags, startId)
         log("onStartCommand")
 
-        isServiseAlive?.invoke(true)
         repo.onLocationChangedListener = {
             Log.e("onLocationListener", "$it / $isEnath")
             if (it) {
                 repo.stopLocationUpdates()
 
                 sendData4Net()
-               // repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
+                // repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
                 cancelTimer(
                     getString(R.string.app_name),
                     "успешно получено " + repo.getDate(Calendar.getInstance().getTime().time)
@@ -300,7 +307,6 @@ java.net.SocketTimeoutException: failed to connect to*/
     override fun onDestroy() {
         super.onDestroy()
         timer?.cancel()
-        isServiseAlive?.invoke(false)
         lifecycleScope.cancel()
         log("onDestroy")
     }

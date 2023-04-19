@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class LocationDbByDays(
     val _id: Long,
     val datestart: String,
-    val dateend: String?=null
+    val dateend: String? = null
 ) : Parcelable

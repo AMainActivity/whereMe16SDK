@@ -1,22 +1,17 @@
 package ru.ama.whereme16SDK.presentation
 
-import androidx.lifecycle.*
-import ru.ama.whereme16SDK.domain.usecase.*
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import ru.ama.whereme16SDK.domain.usecase.CheckServiceUseCase
 import javax.inject.Inject
 
 class MaViewModel @Inject constructor(
-    private val getJwTokenUseCase: GetJwTokenUseCase
+    private val checkServiceUseCase: CheckServiceUseCase
 ) : ViewModel() {
 
-private val _isSuccess = MutableLiveData<Boolean>()
-    val isSuccess: LiveData<Boolean>
-        get() = _isSuccess
-		
-		
-init {
-	//_isSuccess.value=getIsActivateUseCase()
-}
-    fun checkIsActivate()=getJwTokenUseCase().isActivate
-    
+    fun checkService(): Boolean {
+        Log.e("fromSet", checkServiceUseCase(MyForegroundService::class.java).toString())
+        return checkServiceUseCase(MyForegroundService::class.java)
+    }
 
 }

@@ -9,9 +9,10 @@ data class JsonEntity(
     val error: Boolean,
     val message: String
 ) : Parcelable
+
 data class ResponseEntity(
-    val mBody: JsonEntity?=null,
+    val mBody: JsonEntity? = null,
     val respIsSuccess: Boolean,
-    val respError: ResponseBody?=null,
-    val respCode:Int
+    val respError: ResponseBody? = null,
+    val respCode: Int
 )

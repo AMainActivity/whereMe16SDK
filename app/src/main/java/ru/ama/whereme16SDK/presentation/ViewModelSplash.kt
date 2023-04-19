@@ -16,14 +16,16 @@ import org.json.JSONObject
 import ru.ama.whereme16SDK.data.repository.WmRepositoryImpl
 import ru.ama.whereme16SDK.domain.entity.JsonJwt
 import ru.ama.whereme16SDK.domain.entity.SettingsUserInfoDomModel
-import ru.ama.whereme16SDK.domain.usecase.*
+import ru.ama.whereme16SDK.domain.usecase.CheckJwtTokenUseCase
+import ru.ama.whereme16SDK.domain.usecase.CheckKodUseCase
+import ru.ama.whereme16SDK.domain.usecase.GetJwTokenUseCase
+import ru.ama.whereme16SDK.domain.usecase.SetJwTokenUseCase
 import javax.inject.Inject
 
 
 class ViewModelSplash @Inject constructor(
     private val checkJwtTokenUseCase: CheckJwtTokenUseCase,
     private val checkKodUseCase: CheckKodUseCase,
-    private val getJwtFromSetingsUseCase: GetJwtFromSetingsUseCase,
     private val setWmJwTokenUseCase: SetJwTokenUseCase,
     private val getJwTokenUseCase: GetJwTokenUseCase,
     private val app: Application,
@@ -46,10 +48,10 @@ class ViewModelSplash @Inject constructor(
 
     init {
         Log.e("datetime", repositoryImpl.df())
-        Log.e("tokenJwt", getJwtFromSetingsUseCase().tokenJwt)
+        Log.e("tokenJwt", getJwTokenUseCase().tokenJwt)
 
-        if (getJwtFromSetingsUseCase().tokenJwt.length > 3)
-            checkJwt(getJwtFromSetingsUseCase().tokenJwt)
+        if (getJwTokenUseCase().tokenJwt.length > 3)
+            checkJwt(getJwTokenUseCase().tokenJwt)
         else
             checkKod("")
         viewModelScope.launch(Dispatchers.IO) {
@@ -89,16 +91,13 @@ class ViewModelSplash @Inject constructor(
             val response = checkKodUseCase(requestBody)
             Log.e("responseCode", response.respCode.toString())
             Log.e("response", response.toString())
-            /*
 
-response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posId=2, famId=0, name=, url=, isActivate=0), respIsSuccess=true, respError=null, respCode=200)
-            * */
             if (response.respIsSuccess) {
                 response.mBody?.let {
                     if (it.error == false && it.message.equals("1")) {
                         Log.e("tokenJwt2", it.toString())
                         saveUserInfo(it)
-                        checkJwt(getJwtFromSetingsUseCase().tokenJwt)//_isSuccess.value = it
+                        checkJwt(getJwTokenUseCase().tokenJwt)//_isSuccess.value = it
                     } else
                         _isError.value = Unit
 
@@ -144,7 +143,6 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
                             isActivate = (it.message).equals("1")
                         )
                     )
-                    // setIsActivateUseCase(it.message.equals("1"))
                 }
                 _canStart.value = Unit
             } else {
@@ -158,7 +156,7 @@ response: ResponseJwtEntity(mBody=JsonJwt(error=true, message=5, tokenJwt=, posI
                 } catch (e: Exception) {
                     Log.e("checkJwtError", e.message.toString())
                 }
-                _isError.value = Unit//_canStart.value = Unit
+                _isError.value = Unit
                 setWmJwTokenUseCase(
                     SettingsUserInfoDomModel(
                         "",

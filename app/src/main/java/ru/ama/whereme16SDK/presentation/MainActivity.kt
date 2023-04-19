@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -45,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        startService()
+        checkGPS()
 
         val mapFragment = MapFragment()
         val setFragment = SettingsFragment()
@@ -75,10 +76,21 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startService() {
+        if (!viewModel.checkService()) {
+            ContextCompat.startForegroundService(
+                this,
+                MyForegroundService.newIntent(this)
+            )
+            Log.e("MainActivity", "isMyServiceRunning")
+        }
+    }
+
+    private fun checkGPS() {
         when {
             isAccessFineLocationGranted(this) -> {
                 when {
                     isLocationEnabled(this) -> {
+                        startService()
                     }
                     else -> {
                         showGPSNotEnabledDialog(this)
@@ -105,6 +117,7 @@ class MainActivity : AppCompatActivity() {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     when {
                         isLocationEnabled(this) -> {
+                            startService()
                         }
                         else -> {
                             showGPSNotEnabledDialog(this)
