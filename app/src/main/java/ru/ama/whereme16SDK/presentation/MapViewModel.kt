@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ru.ama.whereme16SDK.domain.entity.LocationDb
+import ru.ama.whereme16SDK.domain.entity.LocationDomModel
 import ru.ama.whereme16SDK.domain.usecase.GetLocationsFromBdByIdUseCase
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,7 +14,7 @@ class MapViewModel @Inject constructor(
     private val getLocationsFromBdByIdUseCase: GetLocationsFromBdByIdUseCase
 ) : ViewModel() {
 
-    var lldByDay: LiveData<List<LocationDb>>? = null
+    var lldByDay: LiveData<List<LocationDomModel>>? = null
 
 
     init {
@@ -28,7 +28,7 @@ class MapViewModel @Inject constructor(
     }
 
 
-    fun d(s: List<LocationDb>): String {
+    fun d(s: List<LocationDomModel>): String {
         var mRes = "нет данных"
         if (s.isNotEmpty()) {
             var mTempRes = ""

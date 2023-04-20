@@ -32,11 +32,10 @@ import okhttp3.RequestBody
 import ru.ama.ottest.data.mapper.WmMapperJwt
 import ru.ama.ottest.data.network.WmApiService
 import ru.ama.whereme16SDK.data.database.*
-import ru.ama.whereme16SDK.data.mapper.WmMapper
-import ru.ama.whereme16SDK.data.mapper.WmMapperByDays
+import ru.ama.whereme16SDK.data.mapper.WmMapperLocation
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
 import ru.ama.whereme16SDK.data.mapper.WmMapperUserInfoSettings
-import ru.ama.whereme16SDK.data.workers.Alarm
+import ru.ama.whereme16SDK.data.alarms.PeriodicAlarm
 import ru.ama.whereme16SDK.di.ApplicationScope
 import ru.ama.whereme16SDK.domain.entity.*
 import ru.ama.whereme16SDK.domain.repository.WmRepository
@@ -46,8 +45,7 @@ import javax.inject.Inject
 
 
 class WmRepositoryImpl @Inject constructor(
-    private val mapper: WmMapper,
-    private val mapperByDays: WmMapperByDays,
+    private val mapper: WmMapperLocation,
     private val mapperSetTime: WmMapperSettings,
     private val mapperUserInfoSettings: WmMapperUserInfoSettings,
     private val mapperJwt: WmMapperJwt,
@@ -80,20 +78,17 @@ class WmRepositoryImpl @Inject constructor(
         get() = _isEnathAccuracy
 
 
-    override suspend fun checkKod(request: RequestBody): ResponseJwtEntity {
+    override suspend fun checkKod(request: RequestBody): ResponseJwtDomModel {
         val responc = apiService.chekcKod(request)
         val mBody = responc.body()?.let { mapperJwt.mapDtoToModel(it) }
 
-        val res = ResponseJwtEntity(
+        val res = ResponseJwtDomModel(
             mBody,
             responc.isSuccessful,
             responc.errorBody(),
             responc.code()
         )
 
-        /* nBody = sd.body()?.let { mapperJwt.mapDtoToModel(it) }
-         nError = sd.errorBody()?.let { it }
-         h: Response<JsonJwt> = sd.raw()*/
         return res
     }
 
@@ -128,7 +123,7 @@ class WmRepositoryImpl @Inject constructor(
 
         Log.e("runAlarm", "" + timeInterval)
         val am = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(application, Alarm::class.java)
+        val i = Intent(application, PeriodicAlarm::class.java)
         val pi = PendingIntent.getBroadcast(application, 0, i, 0)
         val alarmTimeAtUTC = System.currentTimeMillis() + timeInterval * 1_000L
         am.cancel(pi)
@@ -156,7 +151,7 @@ class WmRepositoryImpl @Inject constructor(
 
     override fun cancelAlarm() {
         Log.e("runAlarm", "cancelAlarm")
-        val intent = Intent(application, Alarm::class.java)
+        val intent = Intent(application, PeriodicAlarm::class.java)
         val sender = PendingIntent.getBroadcast(application, 0, intent, 0)
         val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(sender)
@@ -177,7 +172,7 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun getLocationById(mDate: String): LiveData<List<LocationDb>> {
+    override suspend fun getLocationById(mDate: String): LiveData<List<LocationDomModel>> {
         Log.e("getLocationById", mDate)
         return Transformations.map(locationDao.getLocationsById(mDate)) {
             it.map {
@@ -186,11 +181,11 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun checkWmJwToken(request: RequestBody): ResponseEntity {
+    override suspend fun checkWmJwToken(request: RequestBody): ResponseDomModel {
         val responc = apiService.checkToken(request)
         val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
 
-        val res = ResponseEntity(
+        val res = ResponseDomModel(
             mBody,
             responc.isSuccessful,
             responc.errorBody(),
@@ -204,7 +199,7 @@ class WmRepositoryImpl @Inject constructor(
         return locationDao.updateQuery(idList)
     }
 
-    suspend fun getLocations4Net(): List<LocationDb> {
+    suspend fun getLocations4Net(): List<LocationDomModel> {
         val d = getWmUserInfoSetings().posId
         val dd = d.toString()
         val res = (locationDao.getLocations4Net(
@@ -216,12 +211,12 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    suspend fun writeLoc4Net(request: RequestBody): ResponseEntity {
+    suspend fun writeLoc4Net(request: RequestBody): ResponseDomModel {
         val responc = apiService.writeLocDatas(request)
         Log.e("writeLoc4Net", responc.toString())
         val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
 
-        val res = ResponseEntity(
+        val res = ResponseDomModel(
             mBody,
             responc.isSuccessful,
             responc.errorBody(),
@@ -273,26 +268,18 @@ class WmRepositoryImpl @Inject constructor(
     fun getDate(milliSeconds: Long): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val calendar: Calendar = Calendar.getInstance()
-        calendar.setTimeInMillis(milliSeconds)
-        return formatter.format(calendar.getTime())
+        calendar.timeInMillis = milliSeconds
+        return formatter.format(calendar.time)
     }
 
     fun df(): String {
         val curUtc = System.currentTimeMillis()
-        val formatter = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-        val calendar = java.util.Calendar.getInstance()
-        calendar.setTimeInMillis(curUtc)
-        val curCal = formatter.format(calendar.getTime())
+        val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = curUtc
+        val curCal = formatter.format(calendar.time)
         val curUtc1 = formatter.format(curUtc)
-        // val formatter = SimpleDateFormat("dd.MM.yyyy")
         return "curUtc:$curUtc # curUtc1:$curUtc1 \n cal:${calendar.timeInMillis} # curCal:$curCal"
-    }
-
-    private fun getCurrentTime(): String {
-        val formatter = SimpleDateFormat("HH:mm")
-        //val calendar: Calendar = Calendar.getInstance()
-        // calendar.timeInMillis = System.currentTimeMillis()
-        return formatter.format(System.currentTimeMillis())
     }
 
     fun getCurrentDateMil(): String {
@@ -318,7 +305,7 @@ class WmRepositoryImpl @Inject constructor(
             location.speed,
             0
         )
-        val itemsCount = locationDao.insertLocation(res)
+        locationDao.insertLocation(res)
         _isEnathAccuracy.postValue(true)
         onLocationChangedListener?.invoke(true)
     }
@@ -364,7 +351,7 @@ class WmRepositoryImpl @Inject constructor(
                                     it.speed,
                                     0
                                 )
-                                val itemsCount = locationDao.insertLocation(res)
+                                locationDao.insertLocation(res)
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)
                                 Log.e("insertLocation", res.toString())
@@ -389,7 +376,7 @@ class WmRepositoryImpl @Inject constructor(
                                 it.accuracy,
                                 it.speed, 0
                             )
-                            val itemsCount = locationDao.insertLocation(res)
+                            locationDao.insertLocation(res)
                             _isEnathAccuracy.postValue(true)
                             onLocationChangedListener?.invoke(true)
 
@@ -477,15 +464,15 @@ class WmRepositoryImpl @Inject constructor(
         set(k) {
             val editor = mSettings.edit()
             editor.putString(APP_PREFERENCES_jwt, k)
-            if (android.os.Build.VERSION.SDK_INT > 9) {
+            if (Build.VERSION.SDK_INT > 9) {
                 editor.apply()
             } else
                 editor.commit()
         }
 
     private companion object {
-        val APP_PREFERENCES_worktime = "worktime"
-        val APP_PREFERENCES_jwt = "jwt"
+        const val APP_PREFERENCES_worktime = "worktime"
+        const val APP_PREFERENCES_jwt = "jwt"
     }
 
 }

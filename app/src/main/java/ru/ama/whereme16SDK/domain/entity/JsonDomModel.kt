@@ -5,20 +5,13 @@ import kotlinx.parcelize.Parcelize
 import okhttp3.ResponseBody
 
 @Parcelize
-data class JsonJwt(
+data class JsonDomModel(
     val error: Boolean,
-    val message: String,
-    val tokenJwt: String,
-    val posId: Int,
-    val famId: Int,
-    val name: String? = null,
-    val url: String? = null,
-    val isActivate: Int
+    val message: String
 ) : Parcelable
 
-
-data class ResponseJwtEntity(
-    val mBody: JsonJwt? = null,
+data class ResponseDomModel(
+    val mBody: JsonDomModel? = null,
     val respIsSuccess: Boolean,
     val respError: ResponseBody? = null,
     val respCode: Int

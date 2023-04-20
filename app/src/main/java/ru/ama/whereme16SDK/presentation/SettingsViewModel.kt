@@ -109,7 +109,6 @@ class SettingsViewModel @Inject constructor(
 
     }
 
-
     fun cancelAlarmService() {
         cancelAlarmServiceUseCase()
     }

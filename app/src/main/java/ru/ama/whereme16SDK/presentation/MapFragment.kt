@@ -107,7 +107,7 @@ class MapFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[MapViewModel::class.java]
         try {
             observeData(viewModel.getCurrentDate())
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
     }
 

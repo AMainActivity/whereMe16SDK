@@ -56,10 +56,6 @@ class AboutFragment : Fragment() {
         }
     }
 
-    private fun setActionBarSubTitle(txt: String) {
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = txt
-    }
-
     private fun sharetext(
         textZagol: String,
         textBody: String,
@@ -76,11 +72,11 @@ class AboutFragment : Fragment() {
         } else
             sharingIntent.type = SHARE_TEXT_TYPE
         sharingIntent.putExtra(
-            android.content.Intent.EXTRA_SUBJECT,
+            Intent.EXTRA_SUBJECT,
             textZagol
         )
         sharingIntent.putExtra(
-            android.content.Intent.EXTRA_TEXT,
+            Intent.EXTRA_TEXT,
             textBody
         )
         val d = Intent.createChooser(

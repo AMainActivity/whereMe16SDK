@@ -1,13 +1,12 @@
 package ru.ama.whereme16SDK.domain.repository
 
-import android.location.Location
 import androidx.lifecycle.LiveData
 import okhttp3.RequestBody
 import ru.ama.whereme16SDK.domain.entity.*
 
 interface WmRepository {
 
-    suspend fun getLocationById(mDate: String): LiveData<List<LocationDb>>
+    suspend fun getLocationById(mDate: String): LiveData<List<LocationDomModel>>
     fun isInternetConnected(): Boolean
 
     fun isMyServiceRunning(serviceClass: Class<*>): Boolean
@@ -20,7 +19,7 @@ interface WmRepository {
     fun getWmUserInfoSetings(): SettingsUserInfoDomModel
     fun setWmUserInfoSetings(set: SettingsUserInfoDomModel)
 
-    suspend fun checkWmJwToken(request: RequestBody): ResponseEntity
+    suspend fun checkWmJwToken(request: RequestBody): ResponseDomModel
 
-    suspend fun checkKod(request: RequestBody): ResponseJwtEntity
+    suspend fun checkKod(request: RequestBody): ResponseJwtDomModel
 }

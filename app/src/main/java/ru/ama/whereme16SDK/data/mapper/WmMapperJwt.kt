@@ -2,14 +2,14 @@ package ru.ama.ottest.data.mapper
 
 import ru.ama.whereme16SDK.data.network.model.JsonDto
 import ru.ama.whereme16SDK.data.network.model.JsonJwtDto
-import ru.ama.whereme16SDK.domain.entity.JsonEntity
-import ru.ama.whereme16SDK.domain.entity.JsonJwt
+import ru.ama.whereme16SDK.domain.entity.JsonDomModel
+import ru.ama.whereme16SDK.domain.entity.JsonJwtDomModel
 import javax.inject.Inject
 
 
 class WmMapperJwt @Inject constructor() {
 
-    fun mapDtoToModel(dto: JsonJwtDto) = JsonJwt(
+    fun mapDtoToModel(dto: JsonJwtDto) = JsonJwtDomModel(
         error = dto.error,
         message = dto.message,
         tokenJwt = dto.tokenJwt,
@@ -20,25 +20,9 @@ class WmMapperJwt @Inject constructor() {
         isActivate = dto.isActivate
     )
 
-    fun mapModelToDto(model: JsonJwt) = JsonJwtDto(
-        error = model.error,
-        message = model.message,
-        posId = model.posId,
-        tokenJwt = model.tokenJwt,
-        famId = model.famId,
-        name = model.name,
-        url = model.url,
-        isActivate = model.isActivate
-    )
-
-    fun mapAllDtoToModel(dto: JsonDto) = JsonEntity(
+    fun mapAllDtoToModel(dto: JsonDto) = JsonDomModel(
         error = dto.error,
         message = dto.message
-    )
-
-    fun mapAllModelToDto(model: JsonEntity) = JsonDto(
-        error = model.error,
-        message = model.message
     )
 
 }

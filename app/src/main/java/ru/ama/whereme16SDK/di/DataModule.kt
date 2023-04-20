@@ -56,14 +56,6 @@ interface DataModule {
             return WmApiFactory.apiService
         }
 
-        /*@Provides
-        @ApplicationScope
-        fun provideDataStore(application: Application): DataStore<Preferences> {
-            return PreferenceDataStoreFactory.create {
-                application.preferencesDataStoreFile("prefs")
-            }
-        }*/
-
         @Provides
         @ApplicationScope
         fun provideSharedPreferences(application: Application): SharedPreferences {
@@ -73,10 +65,6 @@ interface DataModule {
         @ApplicationScope
         @Provides
         fun providesCoroutineScope() = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        /* @Provides
-         @ApplicationScope
-         fun provideCoroutineScope(application: Application)= CoroutineScope(application as CoroutineContext)
- */
 
     }
 

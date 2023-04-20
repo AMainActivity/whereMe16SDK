@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class LocationDb(
+data class LocationDomModel(
     val _id: Long,
     val datetime: String,
     val datestart: String,
@@ -21,5 +21,5 @@ data class LocationDb(
 
 data class DatasToJson(
     val tokenJWT: String,
-    val mdata: List<LocationDb>
+    val mdata: List<LocationDomModel>
 )

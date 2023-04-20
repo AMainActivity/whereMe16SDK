@@ -1,15 +1,15 @@
 package ru.ama.whereme16SDK.data.mapper
 
 import ru.ama.whereme16SDK.data.database.LocationDbModel
-import ru.ama.whereme16SDK.domain.entity.LocationDb
+import ru.ama.whereme16SDK.domain.entity.LocationDomModel
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class WmMapper @Inject constructor() {
+class WmMapperLocation @Inject constructor() {
 
 
-    fun mapDbModelToEntity(dbModel: LocationDbModel) = LocationDb(
+    fun mapDbModelToEntity(dbModel: LocationDbModel) = LocationDomModel(
         _id = dbModel._id,
         datetime = dbModel.datetime,
         datestart = convertLongToTime(dbModel.datestart),
@@ -22,24 +22,6 @@ class WmMapper @Inject constructor() {
         velocity = dbModel.velocity,
         isWrite = dbModel.isWrite
     )
-
-    fun mapEntityToDbModel(db: LocationDb) = LocationDbModel(
-        datetime = db.datetime,
-        datestart = convertDateToLong(db.datestart),
-        dateend = db.dateend?.let { convertDateToLong(it) },
-        info = db.info,
-        latitude = db.latitude,
-        longitude = db.longitude,
-        sourceId = db.sourceId,
-        accuracy = db.accuracy,
-        velocity = db.velocity,
-        isWrite = db.isWrite
-    )
-
-    private fun convertDateToLong(date: String): Long {
-        val df = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
-        return df.parse(date).time
-    }
 
     private fun convertLongToTime(time: Long): String {
         val date = Date(time)

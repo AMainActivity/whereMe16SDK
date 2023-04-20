@@ -37,12 +37,12 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/frgmnt_ab_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:id="@+id/frgmnt_ab_tv"
-                    android:textSize="15dp"
-                    android:text="о приложении" />
+                    android:text="о приложении"
+                    android:textSize="15dp" />
             </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

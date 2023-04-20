@@ -1,5 +1,6 @@
-package ru.ama.whereme16SDK.data.workers
+package ru.ama.whereme16SDK.data.alarms
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -8,12 +9,13 @@ import ru.ama.whereme16SDK.data.repository.WmRepositoryImpl
 import ru.ama.whereme16SDK.presentation.MyApp
 import javax.inject.Inject
 
-class StartServiceReceiver : BroadcastReceiver() {
+class StartServiceAfterBootReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var repo: WmRepositoryImpl
 
 
+    @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context?, intent: Intent?) {
          val component =
              (context!!.applicationContext as MyApp).component

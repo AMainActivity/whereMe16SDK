@@ -14,16 +14,14 @@ import okhttp3.MediaType
 import okhttp3.RequestBody
 import org.json.JSONObject
 import ru.ama.whereme16SDK.data.repository.WmRepositoryImpl
-import ru.ama.whereme16SDK.domain.entity.JsonJwt
+import ru.ama.whereme16SDK.domain.entity.JsonJwtDomModel
 import ru.ama.whereme16SDK.domain.entity.SettingsUserInfoDomModel
-import ru.ama.whereme16SDK.domain.usecase.CheckJwtTokenUseCase
-import ru.ama.whereme16SDK.domain.usecase.CheckKodUseCase
-import ru.ama.whereme16SDK.domain.usecase.GetJwTokenUseCase
-import ru.ama.whereme16SDK.domain.usecase.SetJwTokenUseCase
+import ru.ama.whereme16SDK.domain.usecase.*
 import javax.inject.Inject
 
 
 class ViewModelSplash @Inject constructor(
+    private val checkInternetConnectionUseCase: CheckInternetConnectionUseCase,
     private val checkJwtTokenUseCase: CheckJwtTokenUseCase,
     private val checkKodUseCase: CheckKodUseCase,
     private val setWmJwTokenUseCase: SetJwTokenUseCase,
@@ -33,12 +31,14 @@ class ViewModelSplash @Inject constructor(
 ) : ViewModel() {
     private lateinit var wmTokenInfoModel: SettingsUserInfoDomModel
 
-    private val _isSuccess = MutableLiveData<JsonJwt>()
-    val isSuccess: LiveData<JsonJwt>
-        get() = _isSuccess
     private val _isError = MutableLiveData<Unit>()
     val isError: LiveData<Unit>
         get() = _isError
+
+    private val _canStart = MutableLiveData<Unit>()
+    val canStart: LiveData<Unit>
+        get() = _canStart
+
     private val android_id by lazy {
         Secure.getString(
             app.getContentResolver(),
@@ -51,9 +51,19 @@ class ViewModelSplash @Inject constructor(
         Log.e("tokenJwt", getJwTokenUseCase().tokenJwt)
 
         if (getJwTokenUseCase().tokenJwt.length > 3)
+        {
+            if (!checkInternetConnectionUseCase())
+                _canStart.value = Unit
+            else
             checkJwt(getJwTokenUseCase().tokenJwt)
+        }
         else
-            checkKod("")
+        {
+            if (!checkInternetConnectionUseCase())
+                _isError.value = Unit
+            else
+                checkKod()
+        }
         viewModelScope.launch(Dispatchers.IO) {
             Log.e(
                 "getLastValue1",
@@ -62,11 +72,8 @@ class ViewModelSplash @Inject constructor(
         }
     }
 
-    private val _canStart = MutableLiveData<Unit>()
-    val canStart: LiveData<Unit>
-        get() = _canStart
 
-    private fun saveUserInfo(res: JsonJwt) {
+    private fun saveUserInfo(res: JsonJwtDomModel) {
         setWmJwTokenUseCase(
             SettingsUserInfoDomModel(
                 res.tokenJwt,
@@ -79,7 +86,7 @@ class ViewModelSplash @Inject constructor(
         )
     }
 
-    private fun checkKod(kod: String) {
+    private fun checkKod() {
         val json = JSONObject()
         json.put("phoneId", android_id)
         json.put("phoneName", "${Build.BRAND} ${Build.MODEL} ${Build.ID}")
@@ -94,10 +101,10 @@ class ViewModelSplash @Inject constructor(
 
             if (response.respIsSuccess) {
                 response.mBody?.let {
-                    if (it.error == false && it.message.equals("1")) {
+                    if (!it.error && it.message.equals("1")) {
                         Log.e("tokenJwt2", it.toString())
                         saveUserInfo(it)
-                        checkJwt(getJwTokenUseCase().tokenJwt)//_isSuccess.value = it
+                        checkJwt(getJwTokenUseCase().tokenJwt)
                     } else
                         _isError.value = Unit
 
@@ -107,7 +114,7 @@ class ViewModelSplash @Inject constructor(
 
 
                 try {
-                    val jObjError = JSONObject(response.respError?.string())
+                    val jObjError = response.respError?.string()?.let { JSONObject(it) }
 
                     Log.e(
                         "responseError",
@@ -147,7 +154,7 @@ class ViewModelSplash @Inject constructor(
                 _canStart.value = Unit
             } else {
                 try {
-                    val jObjError = JSONObject(response.respError?.string())
+                    val jObjError = response.respError?.string()?.let { JSONObject(it) }
 
                     Log.e(
                         "checkJwtError",
@@ -173,5 +180,4 @@ class ViewModelSplash @Inject constructor(
         }
     }
 
-    companion object {}
 }

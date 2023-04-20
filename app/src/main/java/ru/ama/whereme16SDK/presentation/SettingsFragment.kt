@@ -92,7 +92,28 @@ class SettingsFragment : Fragment() {
         workingTimeModel = viewModel.getSettings()
         observeViewModel()
         binding.frgmntSetSwitchStart.isChecked = viewModel.checkService()
-        binding.frgmntSetSwitchStart.setOnClickListener { view ->
+        binding.frgmntSetSwitchStart.setOnCheckedChangeListener{ view,isChecked->
+            if (isChecked)
+            {
+                if (!viewModel.checkService()) {
+                    ContextCompat.startForegroundService(
+                        requireContext(),
+                        MyForegroundService.newIntent(requireContext())
+                    )
+                    Log.e("frgmntSetSwitchStart", "isMyServiceRunning")
+                }
+            }
+            else
+            {
+                if (viewModel.checkService()) {
+                    Log.e("frgmntSetSwitchStart", "isMyServiceRunningFalse")
+                    requireContext().stopService(MyForegroundService.newIntent(requireContext()))
+                    viewModel.cancelAlarmService()
+                }
+            }
+        }
+
+       /* binding.frgmntSetSwitchStart.setOnClickListener {
             if (!viewModel.checkService()) {
                 ContextCompat.startForegroundService(
                     requireContext(),
@@ -104,7 +125,7 @@ class SettingsFragment : Fragment() {
                 requireContext().stopService(MyForegroundService.newIntent(requireContext()))
                 viewModel.cancelAlarmService()
             }
-        }
+        }*/
 
 
         setOtherSettings()
@@ -159,12 +180,6 @@ class SettingsFragment : Fragment() {
         binding.frgmntSetTimeAcEt.setText(workingTimeModel.timeOfWaitAccuracy.toString())
         binding.frgmntSetTimePovtorEt.setText(workingTimeModel.timeOfWorkingWM.toString())
     }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

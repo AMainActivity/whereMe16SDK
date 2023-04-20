@@ -22,10 +22,3 @@ data class JsonJwtDto(
     @Expose
     @SerializedName("isactivate") val isActivate: Int
 )
-
-data class ResponseJwtDto(
-    val mBody:JsonJwtDto?=null,
-    val respIsSuccess: Boolean,
-    val respError:ResponseBody?=null,
-    val respCode:Int
-)

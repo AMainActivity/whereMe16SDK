@@ -17,13 +17,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:layout_editor_absoluteY="12dp">
-<TextView
 
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.275"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    android:id="@+id/frgmnt_main_tv"
+            <TextView
+
+                android:id="@+id/frgmnt_main_tv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:autoLink="email"
@@ -31,6 +28,10 @@
                 android:linksClickable="true"
                 android:padding="3dp"
                 android:textColor="#000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.275"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="1" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

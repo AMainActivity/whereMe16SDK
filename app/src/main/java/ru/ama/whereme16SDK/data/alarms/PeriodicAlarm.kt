@@ -1,4 +1,4 @@
-package ru.ama.whereme16SDK.data.workers
+package ru.ama.whereme16SDK.data.alarms
 
 import android.app.ActivityManager
 import android.content.*
@@ -6,10 +6,9 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.content.ContextCompat
 import ru.ama.whereme16SDK.presentation.MyForegroundService
-import java.text.SimpleDateFormat
 
 
-class Alarm : BroadcastReceiver() {
+class PeriodicAlarm : BroadcastReceiver() {
 
 
     private fun isMyServiceRunning(ctx: Context, serviceClass: Class<*>): Boolean {
