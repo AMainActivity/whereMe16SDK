@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name"> Ты где...16SDK</string>
-    <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="frgmnt_set_label">настройки</string>
+    <string name="first_fragment_label"> Логи</string>
+    <string name="frgmnt_set_label">Настройки</string>
     <string name="ma_menu_help">
   &lt;center>Регистрация через telegram-бота:&lt;/center>&lt;br>
   &lt;a href=\'https:\/\/t.me\/myTestInfoBot\'>@myTestInfoBot&lt;/a>
@@ -44,4 +43,25 @@
     </string>
     <string name="frgmnt_menu_share_mail">10ama@mail.ru</string>
     <string name="frgmnt_menu_share_use">использовать</string>
+    <string name="days_list">список дат</string>
+    <string name="share_url">Поделиться</string>
+    <string name="about_app">О приложении</string>
+    <string name="frsmnt_set_start">Начать слежение</string>
+    <string name="frgmnt_set_min_dist">Минимальное расстояние, м</string>
+    <string name="frgnbt_set_accuracy">Точность, м</string>
+    <string name="frgmnt_set_time_accuracy">Время ожидания точности, с</string>
+    <string name="frgmnt_set_time_periodic">Периодичность контроля, с</string>
+    <string name="fragment_about_binding_null">FragmentAboutBinding == null</string>
+    <string name="no_data">нет данных</string>
+    <string name="frgmnt_about_url_start">https://kol.hhos.ru/gkk/map.php?wm=</string>
+    <string name="frgmnt_about_alert_title">Важная информация</string>
+    <string name="frgmnt_about_alert_mes">Вы можете поделиться ссылкой для просмотра своих данных. \nДелитесь с сылкой с теми лицами, которым Вы доверяете просмотр своих данных. Перейдя по ссылке, эти лица могут контролировать как и текущие Ваши местоположения, так и видеть Ваши местоположения за определенный день.\n Для запрета использования ссылки перейдите в telegram-bot и сформируйте новый код.</string>
+    <string name="access_denied">\"нет доступа \"</string>
+    <string name="turn_on_GPS">Включи GPS</string>
+    <string name="yes_or_no">да/нет</string>
+    <string name="yes_string">да</string>
+    <string name="fragment_first_binding_null">FragmentFirstBinding == null</string>
+    <string name="logs_format">%s. %s  Ш: %s Д: %s Точность: %s Инфо: %s Скорость: %s &lt;br></string>
+    <string name="set_format">введите число больше %s</string>
+    <string name="fragment_settings_binding_null">FragmentSettingsBinding == null</string>
 </resources>

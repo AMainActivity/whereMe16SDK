@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import ru.ama.whereme16SDK.R
 import ru.ama.whereme16SDK.databinding.FragmentSettingsBinding
 import ru.ama.whereme16SDK.domain.entity.SettingsDomModel
 import javax.inject.Inject
@@ -21,7 +22,7 @@ class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding
-        get() = _binding ?: throw RuntimeException("FragmentSettingsBinding == null")
+        get() = _binding ?: throw RuntimeException(getString(R.string.fragment_settings_binding_null))
     private lateinit var viewModel: SettingsViewModel
     private val component by lazy {
         (requireActivity().application as MyApp).component
@@ -52,7 +53,7 @@ class SettingsFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.errorMinDistance.observe(viewLifecycleOwner) {
             val message = if (it) {
-                "введите число больше 10"
+                String.format(getString(R.string.set_format),10)
             } else {
                 null
             }
@@ -60,7 +61,7 @@ class SettingsFragment : Fragment() {
         }
         viewModel.errorAccuracy.observe(viewLifecycleOwner) {
             val message = if (it) {
-                "введите число больше 50"
+                String.format(getString(R.string.set_format),50)
             } else {
                 null
             }
@@ -68,7 +69,7 @@ class SettingsFragment : Fragment() {
         }
         viewModel.errorTimeAccuracy.observe(viewLifecycleOwner) {
             val message = if (it) {
-                "введите число больше 20"
+                String.format(getString(R.string.set_format),20)
             } else {
                 null
             }
@@ -76,7 +77,7 @@ class SettingsFragment : Fragment() {
         }
         viewModel.errorTimePeriod.observe(viewLifecycleOwner) {
             val message = if (it) {
-                "введите число больше 15"
+                String.format(getString(R.string.set_format),15)
             } else {
                 null
             }
@@ -87,7 +88,7 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = "Настройки"
+        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = getString(R.string.frgmnt_set_label)
         viewModel = ViewModelProvider(this, viewModelFactory)[SettingsViewModel::class.java]
         workingTimeModel = viewModel.getSettings()
         observeViewModel()
@@ -112,21 +113,6 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
-
-       /* binding.frgmntSetSwitchStart.setOnClickListener {
-            if (!viewModel.checkService()) {
-                ContextCompat.startForegroundService(
-                    requireContext(),
-                    MyForegroundService.newIntent(requireContext())
-                )
-                Log.e("frgmntSetSwitchStart", "isMyServiceRunning")
-            } else {
-                Log.e("frgmntSetSwitchStart", "isMyServiceRunningFalse")
-                requireContext().stopService(MyForegroundService.newIntent(requireContext()))
-                viewModel.cancelAlarmService()
-            }
-        }*/
-
 
         setOtherSettings()
 

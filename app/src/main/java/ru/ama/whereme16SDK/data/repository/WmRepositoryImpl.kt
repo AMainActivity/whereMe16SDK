@@ -253,8 +253,12 @@ class WmRepositoryImpl @Inject constructor(
         return locationDao.updateTime2ById(id, time)
     }
 
-    private fun updateValueDb(id: Int, newInfo: String): Int {
-        return locationDao.updateLocationById(id, newInfo)
+    private fun updateValueDb(id: Int, newInfo: String,
+                              lat: Double,
+                              lon: Double,
+                              acracy: Float
+    ): Int {
+        return locationDao.updateLocationById(id, newInfo,lat,lon,acracy)
     }
 
     fun getLastValue1(): List<LocationDbModel> {
@@ -359,7 +363,10 @@ class WmRepositoryImpl @Inject constructor(
                                 updateTimeEndDb(lastDbValue._id.toInt(), lTime)
                                 updateValueDb(
                                     lastDbValue._id.toInt(),
-                                    getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime)
+                                    getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime),
+                                    it.latitude,
+                                    it.longitude,
+                                    it.accuracy
                                 )
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)
@@ -405,11 +412,11 @@ class WmRepositoryImpl @Inject constructor(
     )
     val defaultUserInfo = Gson().toJson(
         SettingsUserInfoDataModel(
-            "",
+            EMPTY_STRING,
             0,
             0,
-            "",
-            "",
+            EMPTY_STRING,
+            EMPTY_STRING,
             false
         )
     )
@@ -473,6 +480,7 @@ class WmRepositoryImpl @Inject constructor(
     private companion object {
         const val APP_PREFERENCES_worktime = "worktime"
         const val APP_PREFERENCES_jwt = "jwt"
+        const val EMPTY_STRING = ""
     }
 
 }

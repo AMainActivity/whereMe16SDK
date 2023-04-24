@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(
                         this,
-                        "нет доступа ",
+                        getString(R.string.access_denied),
                         Toast.LENGTH_LONG
                     ).show()
                     finish()
@@ -134,7 +134,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun requestAccessFineLocationPermission(activity: AppCompatActivity, requestId: Int) {
         ActivityCompat.requestPermissions(
@@ -148,7 +147,6 @@ class MainActivity : AppCompatActivity() {
             requestId
         )
     }
-
 
     private fun isAccessFineLocationGranted(context: Context): Boolean {
         return ContextCompat
@@ -166,19 +164,15 @@ class MainActivity : AppCompatActivity() {
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-
     private fun showGPSNotEnabledDialog(context: Context) {
         AlertDialog.Builder(context)
-            .setTitle("Включи GPS")
-            .setMessage("да/нет")
+            .setTitle(getString(R.string.turn_on_GPS))
+            .setMessage(getString(R.string.yes_or_no))
             .setCancelable(false)
-            .setPositiveButton("да") { _, _ ->
+            .setPositiveButton(getString(R.string.yes_string)) { _, _ ->
                 context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             }
             .show()
-    }
-
-    companion object {
     }
 
 }

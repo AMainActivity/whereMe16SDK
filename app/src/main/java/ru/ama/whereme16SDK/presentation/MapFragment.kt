@@ -22,7 +22,7 @@ import javax.inject.Inject
 class MapFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
-    private val binding get() = _binding ?: throw RuntimeException("FragmentFirstBinding == null")
+    private val binding get() = _binding ?: throw RuntimeException(getString(R.string.fragment_first_binding_null))
     private lateinit var viewModel: MapViewModel
     private val component by lazy {
         (requireActivity().application as MyApp).component
@@ -59,7 +59,6 @@ class MapFragment : Fragment() {
         }
     }
 
-
     private fun showPopupDatePicker(anchor: View) {
         val popupWindow = PopupWindow(requireContext())
         popupWindow.setBackgroundDrawable(
@@ -86,31 +85,26 @@ class MapFragment : Fragment() {
         }
         popupWindow.contentView = binding2.root
         popupWindow.showAsDropDown(anchor)
-
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = "Карта"
+        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = getString(R.string.first_fragment_label)
         viewModel = ViewModelProvider(this, viewModelFactory)[MapViewModel::class.java]
         try {
             observeData(viewModel.getCurrentDate())
         } catch (_: Exception) {
         }
     }
-
 
     private fun observeData(abSuntitle: String) {
         viewModel.lldByDay?.observe(viewLifecycleOwner) {

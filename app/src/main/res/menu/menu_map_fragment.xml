@@ -6,6 +6,6 @@
     <item
         android:id="@+id/menu_day_picker"
         android:icon="@drawable/ic_baseline_today_24"
-        android:title="список дат"
+        android:title="@string/days_list"
         app:showAsAction="always" />
 </menu>

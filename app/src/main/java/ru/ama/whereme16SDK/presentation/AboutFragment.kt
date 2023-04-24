@@ -20,7 +20,7 @@ class AboutFragment : Fragment() {
 
     private var _binding: FragmentAboutBinding? = null
     private val binding
-        get() = _binding ?: throw RuntimeException("FragmentAboutBinding == null")
+        get() = _binding ?: throw RuntimeException(getString(R.string.fragment_about_binding_null))
     private lateinit var viewModel: AboutViewModel
     private val component by lazy {
         (requireActivity().application as MyApp).component
@@ -88,25 +88,21 @@ class AboutFragment : Fragment() {
 
     private fun shereUrlAlertDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Важная информация")
+            .setTitle(getString(R.string.frgmnt_about_alert_title))
             .setMessage(
-                "Вы можете поделиться ссылкой для просмотра своих данных." +
-                        "  \nДелитесь с сылкой с теми лицами, которым Вы доверяете просмотр своих данных. " +
-                        "Перейдя по ссылке, эти лица могут контролировать как и текущие Ваши местоположения," +
-                        "так и видеть Ваши местоположения за определенный день.\n" +
-                        "Для запрета использования ссылки перейдите в telegram-bot и сформируйте новый код."
+                getString(R.string.frgmnt_about_alert_mes)
             )
             .setCancelable(true)
-            .setPositiveButton("поделиться") { _, _ ->
+            .setPositiveButton(getString(R.string.share_url)) { _, _ ->
 
                 val res = viewModel.getSetUserInfo()
                 if (res.name != null && res.url != null) sharetext(
                     res.name,
-                    "https://kol.hhos.ru/gkk/map.php?wm=" + res.url,
+                    getString(R.string.frgmnt_about_url_start) + res.url,
                     false
                 )
                 else
-                    Toast.makeText(requireContext(), "нет данных", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.no_data), Toast.LENGTH_SHORT).show()
             }
             .show()
     }
@@ -118,15 +114,12 @@ class AboutFragment : Fragment() {
 
         _binding = FragmentAboutBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
-
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = "О приложении"
+        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = getString(R.string.about_app)
         viewModel = ViewModelProvider(this, viewModelFactory)[AboutViewModel::class.java]
 
         binding.frgmntAbTv.linksClickable = true
@@ -138,11 +131,6 @@ class AboutFragment : Fragment() {
             )
 
     }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
