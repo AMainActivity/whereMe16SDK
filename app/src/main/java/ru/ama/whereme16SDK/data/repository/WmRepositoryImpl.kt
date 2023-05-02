@@ -405,9 +405,9 @@ class WmRepositoryImpl @Inject constructor(
     val defaultTime = Gson().toJson(
         SettingsDataModel(
             50,
-            50,
-            60,
-            120
+            100,
+            20,
+            15
         )
     )
     val defaultUserInfo = Gson().toJson(

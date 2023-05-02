@@ -64,4 +64,10 @@
     <string name="logs_format">%s. %s  Ш: %s Д: %s Точность: %s Инфо: %s Скорость: %s &lt;br></string>
     <string name="set_format">введите число больше %s</string>
     <string name="fragment_settings_binding_null">FragmentSettingsBinding == null</string>
+    <string name="serv_title">служба</string>
+    <string name="serv_text">определения местоположения</string>
+    <string name="serv_povtor">скоро повтор</string>
+    <string name="serv_title_">\"служба: \"</string>
+    <string name="serv_ne_naiden">\"не было найдено, скоро повтор \"</string>
+    <string name="serv_uspeh">\"успешно получено \"</string>
 </resources>
