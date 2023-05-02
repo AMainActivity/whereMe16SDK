@@ -181,7 +181,7 @@ class MyForegroundService : LifecycleService() {
                       //  Log.e("response", response.toString())
                         if (response.respIsSuccess) {
                             response.mBody?.let {
-                                if (it.error == false && it.message.length > 0) {
+                                if (!it.error && it.message.isNotEmpty()) {
                                     repo.updateIsWrite(idList)
                                 }
                                 reRunGetLocations()
