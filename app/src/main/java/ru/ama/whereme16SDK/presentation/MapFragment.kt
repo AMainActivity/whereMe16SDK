@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.PopupWindow
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
@@ -106,11 +107,14 @@ class MapFragment : Fragment() {
         }
     }
 
+
+
     private fun observeData(abSuntitle: String) {
         viewModel.lldByDay?.observe(viewLifecycleOwner) {
             (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = abSuntitle
             binding.frgmntMainTv.text =
                 HtmlCompat.fromHtml(viewModel.d(it), HtmlCompat.FROM_HTML_MODE_LEGACY)
+            binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
             Log.e("getLocationlldByDay", it.toString())
         }
     }

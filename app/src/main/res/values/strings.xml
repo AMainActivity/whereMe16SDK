@@ -61,7 +61,7 @@
     <string name="yes_or_no">да/нет</string>
     <string name="yes_string">да</string>
     <string name="fragment_first_binding_null">FragmentFirstBinding == null</string>
-    <string name="logs_format">%s. %s  Ш: %s Д: %s Точность: %s Инфо: %s Скорость: %s &lt;br></string>
+    <string name="logs_format">&lt;b>%s.&lt;/b> &lt;i>%s&lt;/i>  Ш: %s Д: %s Точность: %s Инфо: %s Скорость: %s &lt;br></string>
     <string name="set_format">введите число больше %s</string>
     <string name="fragment_settings_binding_null">FragmentSettingsBinding == null</string>
     <string name="serv_title">служба</string>
