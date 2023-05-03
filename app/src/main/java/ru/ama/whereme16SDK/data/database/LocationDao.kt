@@ -33,11 +33,11 @@ interface LocationDao {
     fun getLastValu1e(): List<LocationDbModel>
 
 
-    @Query("update tab_locations  set info =  :newInfo,isWrite =  0,latitude=:lat,longitude=:lon,accuracy=:acracy where _id=:id")
-    fun updateLocationById(id: Int, newInfo: String,
+    @Query("update tab_locations  set info =  :newInfo,isWrite =  0/*,latitude=:lat,longitude=:lon,accuracy=:acracy*/ where _id=:id")
+    fun updateLocationById(id: Int, newInfo: String/*,
                            lat: Double,
                            lon: Double,
-                           acracy: Float): Int
+                           acracy: Float*/): Int
 
     @Query("update tab_locations  set dateend =  :newTime  where _id=:id")
     fun updateTime2ById(id: Int, newTime: Long): Int

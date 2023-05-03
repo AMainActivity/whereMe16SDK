@@ -253,12 +253,12 @@ class WmRepositoryImpl @Inject constructor(
         return locationDao.updateTime2ById(id, time)
     }
 
-    private fun updateValueDb(id: Int, newInfo: String,
+    private fun updateValueDb(id: Int, newInfo: String/*,
                               lat: Double,
                               lon: Double,
-                              acracy: Float
+                              acracy: Float*/
     ): Int {
-        return locationDao.updateLocationById(id, newInfo,lat,lon,acracy)
+        return locationDao.updateLocationById(id, newInfo/*,lat,lon,acracy*/)
     }
 
     fun getLastValue1(): List<LocationDbModel> {
@@ -363,10 +363,10 @@ class WmRepositoryImpl @Inject constructor(
                                 updateTimeEndDb(lastDbValue._id.toInt(), lTime)
                                 updateValueDb(
                                     lastDbValue._id.toInt(),
-                                    getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime),
+                                    getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime)/*,
                                     it.latitude,
                                     it.longitude,
-                                    it.accuracy
+                                    it.accuracy*/
                                 )
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)

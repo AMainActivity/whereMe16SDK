@@ -188,7 +188,7 @@ class MyForegroundService : LifecycleService() {
                             }
                         } else {
                             try {
-                                val jObjError = JSONObject(response.respError?.string())
+                                val jObjError = response.respError?.string()?.let { JSONObject(it) }
 
                                /* Log.e(
                                     "responseError",
