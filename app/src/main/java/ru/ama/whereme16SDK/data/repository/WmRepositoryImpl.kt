@@ -406,7 +406,7 @@ class WmRepositoryImpl @Inject constructor(
         SettingsDataModel(
             50,
             100,
-            20,
+            50,
             15
         )
     )

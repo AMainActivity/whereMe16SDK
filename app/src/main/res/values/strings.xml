@@ -56,7 +56,7 @@
     <string name="frgmnt_about_url_start">https://kol.hhos.ru/gkk/map.php?wm=</string>
     <string name="frgmnt_about_alert_title">Важная информация</string>
     <string name="frgmnt_about_alert_mes">Вы можете поделиться ссылкой для просмотра своих данных. \nДелитесь с сылкой с теми лицами, которым Вы доверяете просмотр своих данных. Перейдя по ссылке, эти лица могут контролировать как и текущие Ваши местоположения, так и видеть Ваши местоположения за определенный день.\n Для запрета использования ссылки перейдите в telegram-bot и сформируйте новый код.</string>
-    <string name="access_denied">\"нет доступа \"</string>
+    <string name="access_denied">нет доступа </string>
     <string name="turn_on_GPS">Включи GPS</string>
     <string name="yes_or_no">да/нет</string>
     <string name="yes_string">да</string>
@@ -67,7 +67,7 @@
     <string name="serv_title">служба</string>
     <string name="serv_text">определения местоположения</string>
     <string name="serv_povtor">скоро повтор</string>
-    <string name="serv_title_">\"служба: \"</string>
-    <string name="serv_ne_naiden">\"не было найдено, скоро повтор \"</string>
-    <string name="serv_uspeh">\"успешно получено \"</string>
+    <string name="serv_title_">служба: </string>
+    <string name="serv_ne_naiden">не было найдено, скоро повтор </string>
+    <string name="serv_uspeh">успешно получено </string>
 </resources>
