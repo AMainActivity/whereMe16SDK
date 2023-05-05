@@ -20,7 +20,8 @@ class WmMapperLocation @Inject constructor() {
         sourceId = dbModel.sourceId,
         accuracy = dbModel.accuracy,
         velocity = dbModel.velocity,
-        isWrite = dbModel.isWrite
+        isWrite = dbModel.isWrite,
+        isOnOff = dbModel.isOnOff
     )
 
     private fun convertLongToTime(time: Long): String {
