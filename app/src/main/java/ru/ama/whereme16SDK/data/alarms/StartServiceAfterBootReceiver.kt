@@ -26,9 +26,9 @@ class StartServiceAfterBootReceiver : BroadcastReceiver() {
         repo.externalScope.launch(Dispatchers.IO)
         {
             val dbModel=repo.getLastValueFromDbOnOff()
-            repo.updateLocationOnOff(dbModel._id.toInt(), IS_OFF_INT.toString())
+            repo.updateLocationOnOff(dbModel._id.toInt(), IS_OFF_INT)
             repo.isOnOff=IS_ON_INT
-            repo.runAlarm(3)
+            repo.runAlarm(7)
         }
         //repo.getSettingsModel()
     }

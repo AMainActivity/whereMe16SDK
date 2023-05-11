@@ -42,7 +42,7 @@ interface LocationDao {
                            acracy: Float*/): Int
 						   
     @Query("update tab_locations  set isOnOff =  :isOnOff,isWrite =  0 where _id=:id")
-    fun updateLocationOnOff(id: Int, isOnOff: String): Int
+    fun updateLocationOnOff(id: Int, isOnOff: Int): Int
 
     @Query("update tab_locations  set dateend =  :newTime  where _id=:id")
     fun updateTime2ById(id: Int, newTime: Long): Int

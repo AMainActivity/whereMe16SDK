@@ -175,10 +175,10 @@ class MyForegroundService : LifecycleService() {
                 if (idList.size > 0) {
                     try {
 
-                      //  Log.e("Gson2", sdsd.toString())
+                       Log.e("Gson2", sdsd.toString())
                         val response = repo.writeLoc4Net(sdsd)
                       //  Log.e("responseCode", response.respCode.toString())
-                      //  Log.e("response", response.toString())
+                        Log.e("response", response.toString())
                         if (response.respIsSuccess) {
                             response.mBody?.let {
                                 if (!it.error && it.message.isNotEmpty()) {

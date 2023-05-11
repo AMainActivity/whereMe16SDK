@@ -29,6 +29,7 @@ import okhttp3.RequestBody
 import ru.ama.ottest.data.mapper.WmMapperJwt
 import ru.ama.ottest.data.network.WmApiService
 import ru.ama.whereme16SDK.data.alarms.PeriodicAlarm
+import ru.ama.whereme16SDK.data.alarms.StartServiceAfterBootReceiver
 import ru.ama.whereme16SDK.data.database.*
 import ru.ama.whereme16SDK.data.mapper.WmMapperLocation
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
@@ -240,7 +241,7 @@ class WmRepositoryImpl @Inject constructor(
     ) = locationDao.updateLocationById(id, newInfo/*,lat,lon,acracy*/)
 
 
-    fun updateLocationOnOff(id: Int, isOnOff: String) {
+    fun updateLocationOnOff(id: Int, isOnOff: Int) {
         externalScope.launch(Dispatchers.IO) { locationDao.updateLocationOnOff(id, isOnOff) }
     }
 
@@ -346,11 +347,16 @@ class WmRepositoryImpl @Inject constructor(
                                     isInOff4Bd
                                 )
                                 isOnOff = IS_ON_OFF_DEFAULT_INT
+                                isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 locationDao.insertLocation(res)
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)
                                 Log.e("insertLocation", res.toString())
                             } else {
+                                if (isOnOff == IS_ON_INT)
+                                    updateLocationOnOff(lastDbValue._id.toInt(), if (lastDbValue.isOnOff==IS_OFF_INT) IS_ON_OFF_INT else IS_ON_OFF_DEFAULT_INT)
+                                isOnOff = IS_ON_OFF_DEFAULT_INT
+                                isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 updateTimeEndDb(lastDbValue._id.toInt(), lTime)
                                 updateValueDb(
                                     lastDbValue._id.toInt(),
@@ -377,6 +383,7 @@ class WmRepositoryImpl @Inject constructor(
                                 isInOff4Bd
                             )
                             isOnOff = IS_ON_OFF_DEFAULT_INT
+                            isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                             locationDao.insertLocation(res)
                             _isEnathAccuracy.postValue(true)
                             onLocationChangedListener?.invoke(true)
@@ -477,6 +484,8 @@ class WmRepositoryImpl @Inject constructor(
         const val EMPTY_STRING = ""
         const val IS_ON_OFF_DEFAULT_INT = 0
         const val IS_ON_INT = 1
+        const val IS_OFF_INT = 2
+        const val IS_ON_OFF_INT = 3
     }
 
 }
