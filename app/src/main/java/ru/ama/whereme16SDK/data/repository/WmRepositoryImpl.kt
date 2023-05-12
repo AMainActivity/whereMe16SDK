@@ -29,7 +29,6 @@ import okhttp3.RequestBody
 import ru.ama.ottest.data.mapper.WmMapperJwt
 import ru.ama.ottest.data.network.WmApiService
 import ru.ama.whereme16SDK.data.alarms.PeriodicAlarm
-import ru.ama.whereme16SDK.data.alarms.StartServiceAfterBootReceiver
 import ru.ama.whereme16SDK.data.database.*
 import ru.ama.whereme16SDK.data.mapper.WmMapperLocation
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
@@ -353,8 +352,9 @@ class WmRepositoryImpl @Inject constructor(
                                 onLocationChangedListener?.invoke(true)
                                 Log.e("insertLocation", res.toString())
                             } else {
-                                if (isOnOff == IS_ON_INT)
-                                    updateLocationOnOff(lastDbValue._id.toInt(), if (lastDbValue.isOnOff==IS_OFF_INT) IS_ON_OFF_INT else IS_ON_OFF_DEFAULT_INT)
+                                if (isOnOff == IS_ON_INT && lastDbValue.isOnOff == IS_OFF_INT) updateLocationOnOff(
+                                    lastDbValue._id.toInt(), IS_ON_OFF_INT
+                                )
                                 isOnOff = IS_ON_OFF_DEFAULT_INT
                                 isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 updateTimeEndDb(lastDbValue._id.toInt(), lTime)
