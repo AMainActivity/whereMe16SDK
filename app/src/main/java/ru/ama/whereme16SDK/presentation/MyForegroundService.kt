@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class MyForegroundService : LifecycleService() {
 
-    private var timer: CountDownTimer? = null
+   //// private var timer: CountDownTimer? = null
 
     private lateinit var workingTimeModel: SettingsDomModel
     private var isEnath = false
@@ -66,7 +66,7 @@ class MyForegroundService : LifecycleService() {
             repo.isGooglePlayServicesAvailable()
         }
         lifecycleScope.launch(Dispatchers.Main) {
-            startTimer()
+         ////   startTimer()
             if (isGooglePlayServicesAvailab.await()) {
                 repo.startLocationUpdates()
                // log(repo.isEnathAccuracy.value.toString() + "")
@@ -99,7 +99,7 @@ class MyForegroundService : LifecycleService() {
         return String.format(FORMATTED_STRING_MINUTE_SECOND, minutes, seconds)
     }
 
-    private fun startTimer() {
+    /*private fun startTimer() {
         timer = object : CountDownTimer(
             workingTimeModel.timeOfWaitAccuracy.toLong() * 1000,
             1000
@@ -127,7 +127,8 @@ class MyForegroundService : LifecycleService() {
             }
 
             override fun onFinish() {
-                repo.stopLocationUpdates()
+                //  перемнесено в ондестрой
+              //  repo.stopLocationUpdates()
                 if (repo.mBestLoc.longitude != 0.0)
                     lifecycleScope.launch(Dispatchers.IO) {
                         repo.saveLocation(repo.mBestLoc, repo.mBestLoc.time)
@@ -142,7 +143,7 @@ class MyForegroundService : LifecycleService() {
             }
         }
         timer?.start()
-    }
+    }*/
 
     private fun sendData4Net() {
         if (repo.isInternetConnected()) {
@@ -211,11 +212,11 @@ class MyForegroundService : LifecycleService() {
     }
 
     private fun reRunGetLocations() {
-        repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
+     ////   repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
     }
 
     private fun cancelTimer(title: String, txtBody: String) {
-        timer?.cancel()
+      ////  timer?.cancel()
         val notification = notificationBuilder
             .setContentTitle(title)
             .setContentText(txtBody)
@@ -241,7 +242,7 @@ class MyForegroundService : LifecycleService() {
         repo.onLocationChangedListener = {
          //   Log.e("onLocationListener", "$it / $isEnath")
             if (it) {
-                repo.stopLocationUpdates()
+              ///в ондестрой repo.stopLocationUpdates()
                 sendData4Net()
                 cancelTimer(
                     getString(R.string.app_name),
@@ -256,7 +257,8 @@ class MyForegroundService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        timer?.cancel()
+        repo.stopLocationUpdates()
+      ////  timer?.cancel()
         lifecycleScope.cancel()
       //  log("onDestroy")
     }

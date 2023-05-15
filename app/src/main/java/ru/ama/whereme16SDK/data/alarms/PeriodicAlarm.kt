@@ -25,16 +25,16 @@ class PeriodicAlarm : BroadcastReceiver() {
     override fun onReceive(p0: Context?, p1: Intent?) {
         Log.e("onReceiveAlarm", "doAlarm")
         try {
-            if (!isMyServiceRunning(p0!!.applicationContext, MyForegroundService::class.java)) {
+            if (!isMyServiceRunning((p0?.applicationContext as Context), MyForegroundService::class.java)) {
                 ContextCompat.startForegroundService(
-                    p0!!.applicationContext,
-                    MyForegroundService.newIntent(p0!!.applicationContext)
+                    p0.applicationContext,
+                    MyForegroundService.newIntent(p0.applicationContext)
                 )
                 Log.e("onStartCommand", "isMyServiceRunning")
             } else {
                 Log.e("onStartCommand2", "isMyServiceRunning")
-                p0!!.applicationContext.bindService(
-                    MyForegroundService.newIntent(p0!!.applicationContext),
+                p0.applicationContext.bindService(
+                    MyForegroundService.newIntent(p0.applicationContext),
                     serviceConnection,
                     0
                 )

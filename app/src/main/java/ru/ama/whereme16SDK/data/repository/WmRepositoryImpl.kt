@@ -218,8 +218,8 @@ class WmRepositoryImpl @Inject constructor(
         onLocationChangedListener?.invoke(false)
         val request = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000
-            fastestInterval = 10000
+            interval = 5000
+            fastestInterval = 5000
         }
 
         fusedLocationProviderClient.requestLocationUpdates(
