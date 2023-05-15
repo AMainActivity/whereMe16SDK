@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.ama.whereme16SDK.domain.entity.SettingsDomModel
-import ru.ama.whereme16SDK.domain.usecase.CancelAlarmServiceUseCase
 import ru.ama.whereme16SDK.domain.usecase.CheckServiceUseCase
 import ru.ama.whereme16SDK.domain.usecase.GetSettingsUseCase
 import ru.ama.whereme16SDK.domain.usecase.SetSettingsUseCase
@@ -14,8 +13,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val checkServiceUseCase: CheckServiceUseCase,
-    private val setSettingsUseCase: SetSettingsUseCase,
-    private val cancelAlarmServiceUseCase: CancelAlarmServiceUseCase
+    private val setSettingsUseCase: SetSettingsUseCase
 
 ) : ViewModel() {
     private val _errorMinDistance = MutableLiveData<Boolean>()
@@ -24,12 +22,6 @@ class SettingsViewModel @Inject constructor(
     private val _errorAccuracy = MutableLiveData<Boolean>()
     val errorAccuracy: LiveData<Boolean>
         get() = _errorAccuracy
-    private val _errorTimeAccuracy = MutableLiveData<Boolean>()
-    val errorTimeAccuracy: LiveData<Boolean>
-        get() = _errorTimeAccuracy
-    private val _errorTimePeriod = MutableLiveData<Boolean>()
-    val errorTimePeriod: LiveData<Boolean>
-        get() = _errorTimePeriod
 
 
     fun getSettings(): SettingsDomModel {
@@ -67,34 +59,6 @@ class SettingsViewModel @Inject constructor(
                 } else
                     _errorAccuracy.value = true
             }
-            SettingsViewNames.TIME_ACCURACY -> {
-                if (name.isNotEmpty()) {
-                    if (name.toInt() >= 20) {
-                        setSettings(
-                            getSettings().copy(
-                                timeOfWaitAccuracy = name.toInt()
-                            )
-                        )
-                        _errorTimeAccuracy.value = false
-                    } else
-                        _errorTimeAccuracy.value = true
-                } else
-                    _errorTimeAccuracy.value = true
-            }
-            SettingsViewNames.TIME_PERIOD -> {
-                if (name.isNotEmpty()) {
-                    if (name.toInt() >= 15) {
-                        setSettings(
-                            getSettings().copy(
-                                timeOfWorkingWM = name.toInt()
-                            )
-                        )
-                        _errorTimePeriod.value = false
-                    } else
-                        _errorTimePeriod.value = true
-                } else
-                    _errorTimePeriod.value = true
-            }
         }
         return result
     }
@@ -103,15 +67,13 @@ class SettingsViewModel @Inject constructor(
         when (idData) {
             SettingsViewNames.MIN_DISTANCE -> _errorMinDistance.value = false
             SettingsViewNames.ACCURACY -> _errorAccuracy.value = false
-            SettingsViewNames.TIME_ACCURACY -> _errorTimeAccuracy.value = false
-            SettingsViewNames.TIME_PERIOD -> _errorTimePeriod.value = false
         }
 
     }
 
-    fun cancelAlarmService() {
+   /* fun cancelAlarmService() {
         cancelAlarmServiceUseCase()
-    }
+    }*/
 
     fun checkService(): Boolean {
         Log.e("fromSet", checkServiceUseCase(MyForegroundService::class.java).toString())

@@ -112,49 +112,11 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
-
-    override fun runAlarm(timeInterval: Long) {
-
-        Log.e("runAlarm", "" + timeInterval)
-        val am = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(application, PeriodicAlarm::class.java)
-        val pi = PendingIntent.getBroadcast(application, 0, i, 0)
-        val alarmTimeAtUTC = System.currentTimeMillis() + timeInterval * 1_000L
-        am.cancel(pi)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeAtUTC, pi)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val alarmClockInfo: AlarmManager.AlarmClockInfo =
-                AlarmManager.AlarmClockInfo(alarmTimeAtUTC, pi)
-            am.setAlarmClock(alarmClockInfo, pi)
-        }//KITKAT 19 OR ABOVE
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(
-                AlarmManager.RTC_WAKEUP, alarmTimeAtUTC, pi
-            )
-        }
-        //FOR BELOW KITKAT ALL DEVICES
-        else {
-            am.set(
-                AlarmManager.RTC_WAKEUP, alarmTimeAtUTC, pi
-            )
-        }
-    }
-
-    override fun cancelAlarm() {
-        Log.e("runAlarm", "cancelAlarm")
-        val intent = Intent(application, PeriodicAlarm::class.java)
-        val sender = PendingIntent.getBroadcast(application, 0, intent, 0)
-        val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(sender)
-    }
-
     override fun getSettingsModel() = mapperSetTime.mapDataModelToDomain(
         Gson().fromJson(
             worktime, SettingsDataModel::class.java
         )
     )
-
 
     override fun setWorkingTime(dm: SettingsDomModel) {
         worktime = Gson().toJson(mapperSetTime.mapDomainToDataModel(dm))
@@ -405,7 +367,7 @@ class WmRepositoryImpl @Inject constructor(
 
     val defaultTime = Gson().toJson(
         SettingsDataModel(
-            50, 100, 50, 15
+            50, 100
         )
     )
     val defaultUserInfo = Gson().toJson(

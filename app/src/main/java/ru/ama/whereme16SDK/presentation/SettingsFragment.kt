@@ -67,22 +67,6 @@ class SettingsFragment : Fragment() {
             }
             binding.frgmntSetAccurEt.error = message
         }
-        viewModel.errorTimeAccuracy.observe(viewLifecycleOwner) {
-            val message = if (it) {
-                String.format(getString(R.string.set_format),20)
-            } else {
-                null
-            }
-            binding.frgmntSetTimeAcEt.error = message
-        }
-        viewModel.errorTimePeriod.observe(viewLifecycleOwner) {
-            val message = if (it) {
-                String.format(getString(R.string.set_format),15)
-            } else {
-                null
-            }
-            binding.frgmntSetTimePovtorEt.error = message
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -109,7 +93,7 @@ class SettingsFragment : Fragment() {
                 if (viewModel.checkService()) {
                     Log.e("frgmntSetSwitchStart", "isMyServiceRunningFalse")
                     requireContext().stopService(MyForegroundService.newIntent(requireContext()))
-                    viewModel.cancelAlarmService()
+                   // viewModel.cancelAlarmService()
                 }
             }
         }
@@ -136,26 +120,6 @@ class SettingsFragment : Fragment() {
                 viewModel.validateInputData(s.toString(), SettingsViewNames.ACCURACY)
             }
         })
-        binding.frgmntSetTimeAcEt.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                viewModel.resetError(SettingsViewNames.TIME_ACCURACY)
-            }
-
-            override fun afterTextChanged(s: Editable) {
-                viewModel.validateInputData(s.toString(), SettingsViewNames.TIME_ACCURACY)
-            }
-        })
-        binding.frgmntSetTimePovtorEt.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                viewModel.resetError(SettingsViewNames.TIME_PERIOD)
-            }
-
-            override fun afterTextChanged(s: Editable) {
-                viewModel.validateInputData(s.toString(), SettingsViewNames.TIME_PERIOD)
-            }
-        })
 
 
     }
@@ -163,8 +127,6 @@ class SettingsFragment : Fragment() {
     private fun setOtherSettings() {
         binding.frgmntSetAccurEt.setText(workingTimeModel.accuracy.toString())
         binding.frgmntSetMdEt.setText(workingTimeModel.minDist.toString())
-        binding.frgmntSetTimeAcEt.setText(workingTimeModel.timeOfWaitAccuracy.toString())
-        binding.frgmntSetTimePovtorEt.setText(workingTimeModel.timeOfWorkingWM.toString())
     }
 
     override fun onDestroyView() {
