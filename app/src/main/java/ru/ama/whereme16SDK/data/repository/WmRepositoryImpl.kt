@@ -24,18 +24,15 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import ru.ama.ottest.data.mapper.WmMapperJwt
 import ru.ama.ottest.data.network.WmApiService
+import ru.ama.whereme16SDK.data.alarms.PeriodicAlarm
 import ru.ama.whereme16SDK.data.database.*
 import ru.ama.whereme16SDK.data.mapper.WmMapperLocation
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
 import ru.ama.whereme16SDK.data.mapper.WmMapperUserInfoSettings
-import ru.ama.whereme16SDK.data.alarms.PeriodicAlarm
 import ru.ama.whereme16SDK.di.ApplicationScope
 import ru.ama.whereme16SDK.domain.entity.*
 import ru.ama.whereme16SDK.domain.repository.WmRepository
@@ -52,7 +49,7 @@ class WmRepositoryImpl @Inject constructor(
     private val locationDao: LocationDao,
     private val application: Application,
     private val fusedLocationProviderClient: FusedLocationProviderClient,
-    @ApplicationScope private val externalScope: CoroutineScope,
+    @ApplicationScope val externalScope: CoroutineScope,
     private val googleApiAvailability: GoogleApiAvailability,
     private val apiService: WmApiService,
     private val mSettings: SharedPreferences
@@ -83,10 +80,7 @@ class WmRepositoryImpl @Inject constructor(
         val mBody = responc.body()?.let { mapperJwt.mapDtoToModel(it) }
 
         val res = ResponseJwtDomModel(
-            mBody,
-            responc.isSuccessful,
-            responc.errorBody(),
-            responc.code()
+            mBody, responc.isSuccessful, responc.errorBody(), responc.code()
         )
 
         return res
@@ -118,86 +112,38 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
-
-    override fun runAlarm(timeInterval: Long) {
-
-        Log.e("runAlarm", "" + timeInterval)
-        val am = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val i = Intent(application, PeriodicAlarm::class.java)
-        val pi = PendingIntent.getBroadcast(application, 0, i, 0)
-        val alarmTimeAtUTC = System.currentTimeMillis() + timeInterval * 1_000L
-        am.cancel(pi)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTimeAtUTC, pi)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val alarmClockInfo: AlarmManager.AlarmClockInfo =
-                AlarmManager.AlarmClockInfo(alarmTimeAtUTC, pi)
-            am.setAlarmClock(alarmClockInfo, pi)
-        }//KITKAT 19 OR ABOVE
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(
-                AlarmManager.RTC_WAKEUP,
-                alarmTimeAtUTC, pi
-            )
-        }
-        //FOR BELOW KITKAT ALL DEVICES
-        else {
-            am.set(
-                AlarmManager.RTC_WAKEUP,
-                alarmTimeAtUTC, pi
-            )
-        }
-    }
-
-    override fun cancelAlarm() {
-        Log.e("runAlarm", "cancelAlarm")
-        val intent = Intent(application, PeriodicAlarm::class.java)
-        val sender = PendingIntent.getBroadcast(application, 0, intent, 0)
-        val alarmManager = application.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(sender)
-    }
-
-    override fun getSettingsModel(): SettingsDomModel {
-        return mapperSetTime.mapDataModelToDomain(
-            Gson().fromJson(
-                worktime,
-                SettingsDataModel::class.java
-            )
+    override fun getSettingsModel() = mapperSetTime.mapDataModelToDomain(
+        Gson().fromJson(
+            worktime, SettingsDataModel::class.java
         )
-    }
-
+    )
 
     override fun setWorkingTime(dm: SettingsDomModel) {
         worktime = Gson().toJson(mapperSetTime.mapDomainToDataModel(dm))
     }
 
 
-    override suspend fun getLocationById(mDate: String): LiveData<List<LocationDomModel>> {
-        Log.e("getLocationById", mDate)
-        return Transformations.map(locationDao.getLocationsById(mDate)) {
+    override suspend fun getLocationById(mDate: String) =
+        Transformations.map(locationDao.getLocationsById(mDate)) {
             it.map {
                 mapper.mapDbModelToEntity(it)
             }
         }
-    }
+
 
     override suspend fun checkWmJwToken(request: RequestBody): ResponseDomModel {
         val responc = apiService.checkToken(request)
         val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
 
         val res = ResponseDomModel(
-            mBody,
-            responc.isSuccessful,
-            responc.errorBody(),
-            responc.code()
+            mBody, responc.isSuccessful, responc.errorBody(), responc.code()
         )
         return res
     }
 
 
-    fun updateIsWrite(idList: List<Long>) {
-        return locationDao.updateQuery(idList)
-    }
+    fun updateIsWrite(idList: List<Long>) = locationDao.updateQuery(idList)
+
 
     suspend fun getLocations4Net(): List<LocationDomModel> {
         val d = getWmUserInfoSetings().posId
@@ -217,10 +163,7 @@ class WmRepositoryImpl @Inject constructor(
         val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
 
         val res = ResponseDomModel(
-            mBody,
-            responc.isSuccessful,
-            responc.errorBody(),
-            responc.code()
+            mBody, responc.isSuccessful, responc.errorBody(), responc.code()
         )
         return res
     }
@@ -237,37 +180,41 @@ class WmRepositoryImpl @Inject constructor(
         onLocationChangedListener?.invoke(false)
         val request = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000
-            fastestInterval = 10000
+            interval = 5000
+            fastestInterval = 5000
         }
 
         fusedLocationProviderClient.requestLocationUpdates(
-            request, callback,
-            Looper.myLooper()!!
+            request, callback, Looper.myLooper()!!
         )
         Log.e("getLocation00", fusedLocationProviderClient.toString())
     }
 
 
-    private fun updateTimeEndDb(id: Int, time: Long): Int {
-        return locationDao.updateTime2ById(id, time)
-    }
+    private fun updateTimeEndDb(id: Int, time: Long) = locationDao.updateTime2ById(id, time)
 
-    private fun updateValueDb(id: Int, newInfo: String/*,
+
+    private fun updateValueDb(
+        id: Int, newInfo: String/*,
                               lat: Double,
                               lon: Double,
                               acracy: Float*/
-    ): Int {
-        return locationDao.updateLocationById(id, newInfo/*,lat,lon,acracy*/)
+    ) = locationDao.updateLocationById(id, newInfo/*,lat,lon,acracy*/)
+
+
+    fun updateLocationOnOff(id: Int, isOnOff: Int) {
+        externalScope.launch(Dispatchers.IO) { locationDao.updateLocationOnOff(id, isOnOff) }
     }
 
-    fun getLastValue1(): List<LocationDbModel> {
-        return locationDao.getLastValu1e()
-    }
 
-    private fun getLastValueFromDb(): LocationDbModel {
-        return locationDao.getLastValue(getCurrentDate())
-    }
+    fun getLastValue1() = locationDao.getLastValu1e()
+
+
+    private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
+
+
+    fun getLastValueFromDbOnOff() = locationDao.getLastValueOnOff()
+
 
     fun getDate(milliSeconds: Long): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
@@ -291,7 +238,7 @@ class WmRepositoryImpl @Inject constructor(
         return formatter.format(System.currentTimeMillis())
     }
 
-    fun getCurrentDate(): String {
+    private fun getCurrentDate(): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy")
         return formatter.format(Date())
     }
@@ -307,13 +254,23 @@ class WmRepositoryImpl @Inject constructor(
             1,
             location.accuracy,
             location.speed,
-            0
+            0,
+            IS_ON_OFF_DEFAULT_INT
         )
         locationDao.insertLocation(res)
         _isEnathAccuracy.postValue(true)
         onLocationChangedListener?.invoke(true)
     }
 
+    private fun gerDistance2Locations(loc1: LocationDbModel, loc2: Location): Float {
+        val locA = Location("lastValue")
+        locA.latitude = loc1.latitude
+        locA.longitude = loc1.longitude
+        val locB = Location("newValue")
+        locB.latitude = loc2.latitude
+        locB.longitude = loc2.longitude
+        return locA.distanceTo(locB)
+    }
 
     private inner class Callback : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
@@ -326,21 +283,15 @@ class WmRepositoryImpl @Inject constructor(
                 mBestLoc.speed = result.lastLocation.speed
                 mBestLoc.time = lTime
             }
-
             if (result.lastLocation != null && result.lastLocation.accuracy < workingTimeModel.accuracy) {
                 /*ProcessLifecycleOwner.get().lifecycleScope*/
                 externalScope.launch(Dispatchers.IO) {
                     val lastDbValue = getLastValueFromDb()
-
+                    var isInOff4Bd = IS_ON_OFF_DEFAULT_INT
+                    if (isOnOff == IS_ON_INT) isInOff4Bd = IS_ON_INT
                     result.lastLocation.let {
                         if (lastDbValue != null) {
-                            val locA = Location("lastValue")
-                            locA.latitude = lastDbValue.latitude
-                            locA.longitude = lastDbValue.longitude
-                            val locB = Location("newValue")
-                            locB.latitude = it.latitude
-                            locB.longitude = it.longitude
-                            val dist = locA.distanceTo(locB)
+                            val dist = gerDistance2Locations(lastDbValue, it)
                             Log.e("distanceLastNew", dist.toString())
                             if (dist > workingTimeModel.minDist) {
                                 val res = LocationDbModel(
@@ -353,13 +304,21 @@ class WmRepositoryImpl @Inject constructor(
                                     1,
                                     it.accuracy,
                                     it.speed,
-                                    0
+                                    0,
+                                    isInOff4Bd
                                 )
+                                isOnOff = IS_ON_OFF_DEFAULT_INT
+                                isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 locationDao.insertLocation(res)
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)
                                 Log.e("insertLocation", res.toString())
                             } else {
+                                if (isOnOff == IS_ON_INT && lastDbValue.isOnOff == IS_OFF_INT) updateLocationOnOff(
+                                    lastDbValue._id.toInt(), IS_ON_OFF_INT
+                                )
+                                isOnOff = IS_ON_OFF_DEFAULT_INT
+                                isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 updateTimeEndDb(lastDbValue._id.toInt(), lTime)
                                 updateValueDb(
                                     lastDbValue._id.toInt(),
@@ -381,8 +340,12 @@ class WmRepositoryImpl @Inject constructor(
                                 it.longitude,
                                 1,
                                 it.accuracy,
-                                it.speed, 0
+                                it.speed,
+                                0,
+                                isInOff4Bd
                             )
+                            isOnOff = IS_ON_OFF_DEFAULT_INT
+                            isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                             locationDao.insertLocation(res)
                             _isEnathAccuracy.postValue(true)
                             onLocationChangedListener?.invoke(true)
@@ -404,31 +367,21 @@ class WmRepositoryImpl @Inject constructor(
 
     val defaultTime = Gson().toJson(
         SettingsDataModel(
-            50,
-            100,
-            50,
-            15
+            50, 100
         )
     )
     val defaultUserInfo = Gson().toJson(
         SettingsUserInfoDataModel(
-            EMPTY_STRING,
-            0,
-            0,
-            EMPTY_STRING,
-            EMPTY_STRING,
-            false
+            EMPTY_STRING, 0, 0, EMPTY_STRING, EMPTY_STRING, false
         )
     )
 
-    override fun getWmUserInfoSetings(): SettingsUserInfoDomModel {
-        return mapperUserInfoSettings.mapDataModelToDomain(
-            Gson().fromJson(
-                jwToken,
-                SettingsUserInfoDataModel::class.java
-            )
+    override fun getWmUserInfoSetings() = mapperUserInfoSettings.mapDataModelToDomain(
+        Gson().fromJson(
+            jwToken, SettingsUserInfoDataModel::class.java
         )
-    }
+    )
+
 
     override fun setWmUserInfoSetings(dm: SettingsUserInfoDomModel) {
         jwToken = Gson().toJson(mapperUserInfoSettings.mapDomainToDataModel(dm))
@@ -439,48 +392,62 @@ class WmRepositoryImpl @Inject constructor(
             val k: String?
             if (mSettings.contains(APP_PREFERENCES_worktime)) {
                 k = mSettings.getString(
-                    APP_PREFERENCES_worktime,
-                    defaultTime
+                    APP_PREFERENCES_worktime, defaultTime
                 )
-            } else
-                k = defaultTime
+            } else k = defaultTime
             return k
         }
-        @SuppressLint("NewApi")
-        set(k) {
+        @SuppressLint("NewApi") set(k) {
             val editor = mSettings.edit()
             editor.putString(APP_PREFERENCES_worktime, k)
-            if (android.os.Build.VERSION.SDK_INT > 9) {
+            if (Build.VERSION.SDK_INT > 9) {
                 editor.apply()
-            } else
-                editor.commit()
+            } else editor.commit()
         }
     var jwToken: String
         get() {
             val k: String
             if (mSettings.contains(APP_PREFERENCES_jwt)) {
                 k = mSettings.getString(
-                    APP_PREFERENCES_jwt,
-                    defaultUserInfo
+                    APP_PREFERENCES_jwt, defaultUserInfo
                 ).toString()
-            } else
-                k = defaultUserInfo
+            } else k = defaultUserInfo
             return k
         }
-        @SuppressLint("NewApi")
-        set(k) {
+        @SuppressLint("NewApi") set(k) {
             val editor = mSettings.edit()
             editor.putString(APP_PREFERENCES_jwt, k)
             if (Build.VERSION.SDK_INT > 9) {
                 editor.apply()
-            } else
-                editor.commit()
+            } else editor.commit()
+        }
+    var isOnOff: Int
+        get() {
+            val k: Int
+            if (mSettings.contains(APP_PREFERENCES_isOnOff)) {
+                k = mSettings.getInt(
+                    APP_PREFERENCES_isOnOff, IS_ON_OFF_DEFAULT_INT
+                )
+            } else k = IS_ON_OFF_DEFAULT_INT
+            return k
+        }
+        @SuppressLint("NewApi") set(k) {
+            val editor = mSettings.edit()
+            editor.putInt(APP_PREFERENCES_isOnOff, k)
+            if (Build.VERSION.SDK_INT > 9) {
+                editor.apply()
+            } else editor.commit()
         }
 
     private companion object {
         const val APP_PREFERENCES_worktime = "worktime"
         const val APP_PREFERENCES_jwt = "jwt"
+        const val APP_PREFERENCES_isOnOff = "isOnOff"
         const val EMPTY_STRING = ""
+        const val IS_ON_OFF_DEFAULT_INT = 0
+        const val IS_ON_INT = 1
+        const val IS_OFF_INT = 2
+        const val IS_ON_OFF_INT = 3
     }
 
 }

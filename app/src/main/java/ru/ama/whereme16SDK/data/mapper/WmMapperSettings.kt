@@ -9,16 +9,12 @@ class WmMapperSettings @Inject constructor() {
 
     fun mapDataModelToDomain(dataModel: SettingsDataModel) = SettingsDomModel(
         minDist = dataModel.minDist,
-        accuracy = dataModel.accuracy,
-        timeOfWaitAccuracy = dataModel.timeOfWaitAccuracy,
-        timeOfWorkingWM = dataModel.timeOfWorkingWM
+        accuracy = dataModel.accuracy
     )
 
     fun mapDomainToDataModel(domainModel: SettingsDomModel) = SettingsDataModel(
         minDist = domainModel.minDist,
-        accuracy = domainModel.accuracy,
-        timeOfWaitAccuracy = domainModel.timeOfWaitAccuracy,
-        timeOfWorkingWM = domainModel.timeOfWorkingWM
+        accuracy = domainModel.accuracy
     )
 
 

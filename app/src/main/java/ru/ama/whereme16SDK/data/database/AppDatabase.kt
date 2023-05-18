@@ -1,11 +1,18 @@
 package ru.ama.whereme16SDK.data.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [LocationDbModel::class], version = 3, exportSchema = false)
+
+@Database(
+    entities = [LocationDbModel::class],
+    version = 4,
+    exportSchema = true,
+    autoMigrations = [AutoMigration(from = 3, to = 4)]
+)
 //@TypeConverters(OffsetDateTimeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     companion object {
@@ -23,14 +30,23 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabase::class.java,
                         DB_NAME
                     )
-                        .fallbackToDestructiveMigration()
+                        //.addMigrations(AppDatabase.MIGRATION_3_4)
+                        //.fallbackToDestructiveMigration()
                         // .allowMainThreadQueries()
                         .build()
                 db = instance
                 return instance
             }
         }
+
+        /*val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE tab_locations ADD COLUMN isOnOff INTEGER")
+            }
+        }*/
     }
 
     abstract fun locationDao(): LocationDao
+
+
 }

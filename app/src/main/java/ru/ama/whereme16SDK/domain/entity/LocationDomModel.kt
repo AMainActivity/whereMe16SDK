@@ -15,7 +15,8 @@ data class LocationDomModel(
     val sourceId: Int,
     val accuracy: Float,
     val velocity: Float,
-    val isWrite: Int
+    val isWrite: Int,
+    val isOnOff: Int
 ) : Parcelable
 
 

@@ -106,51 +106,6 @@
                                 android:singleLine="true" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-
-                            android:id="@+id/frgmnt_set_time_ac_l"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:minWidth="200dp"
-                            android:textColorHint="#aaa">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/frgmnt_set_time_ac_et"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:layout_margin="5dp"
-                                android:background="@color/white"
-                                android:hint="@string/frgmnt_set_time_accuracy"
-                                android:inputType="number"
-                                android:maxLines="1"
-                                android:singleLine="true" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-
-                            android:id="@+id/frgmnt_set_time_povtor_l"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:minWidth="200dp"
-                            android:textColorHint="#aaa">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/frgmnt_set_time_povtor_et"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
-                                android:layout_margin="5dp"
-                                android:background="@color/white"
-                                android:hint="@string/frgmnt_set_time_periodic"
-                                android:inputType="number"
-                                android:maxLines="1"
-                                android:singleLine="true" />
-                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                 </LinearLayout>

@@ -1,5 +1,6 @@
 package ru.ama.whereme16SDK.data.database
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ru.ama.whereme16SDK.data.database.LocationDbModel.Companion.tabTestInfo
@@ -15,7 +16,9 @@ data class LocationDbModel(
     val sourceId: Int,
     val accuracy: Float,
     val velocity: Float,
-    val isWrite: Int
+    val isWrite: Int,
+    @ColumnInfo(defaultValue = "0")
+    val isOnOff: Int
 ) {
     @PrimaryKey(autoGenerate = true)
     var _id: Long = 0

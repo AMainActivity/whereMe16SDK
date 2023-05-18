@@ -10,9 +10,6 @@ interface WmRepository {
     fun isInternetConnected(): Boolean
 
     fun isMyServiceRunning(serviceClass: Class<*>): Boolean
-    fun runAlarm(timeInterval: Long)
-    fun cancelAlarm()
-
     fun getSettingsModel(): SettingsDomModel
     fun setWorkingTime(dm: SettingsDomModel)
 
