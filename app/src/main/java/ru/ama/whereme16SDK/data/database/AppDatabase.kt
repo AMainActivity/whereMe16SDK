@@ -8,10 +8,10 @@ import androidx.room.RoomDatabase
 
 
 @Database(
-    entities = [LocationDbModel::class],
-    version = 4,
+    entities = [LocationDbModel::class,SmsCallDbModel::class],
+    version = 5,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 3, to = 4)]
+    autoMigrations = [AutoMigration(from = 3, to = 4),AutoMigration(from = 4, to = 5)]
 )
 //@TypeConverters(OffsetDateTimeConverter::class)
 abstract class AppDatabase : RoomDatabase() {

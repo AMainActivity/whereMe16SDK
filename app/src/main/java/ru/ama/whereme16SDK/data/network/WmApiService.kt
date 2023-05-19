@@ -25,8 +25,9 @@ interface WmApiService {
         @Body request: RequestBody
     ): Response<JsonDto>
 	
-	
-	
-    companion object {
-    }
+    @POST(BuildConfig.GKK_WRITE_CALL_SMS_DATA)
+    suspend fun writeCallSmsData(
+        @Body request: RequestBody
+    ): Response<JsonDto>
+		
 }

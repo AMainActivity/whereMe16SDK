@@ -39,6 +39,7 @@ android {
         it.buildConfigField 'String', "GKK_CHECK_TOKEN", gkk_checkToken
         it.buildConfigField 'String', "GKK_LOG_OUT", gkk_Logout
         it.buildConfigField 'String', "GKK_WRITE_LOC_DATAS", gkk_WriteLocDatas
+        it.buildConfigField 'String', "GKK_WRITE_CALL_SMS_DATA", gkk_WriteCallSmsData
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

@@ -2,11 +2,8 @@ package ru.ama.whereme16SDK.data.repository
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.app.AlarmManager
 import android.app.Application
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.location.Location
 import android.net.ConnectivityManager
@@ -28,7 +25,6 @@ import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import ru.ama.ottest.data.mapper.WmMapperJwt
 import ru.ama.ottest.data.network.WmApiService
-import ru.ama.whereme16SDK.data.alarms.PeriodicAlarm
 import ru.ama.whereme16SDK.data.database.*
 import ru.ama.whereme16SDK.data.mapper.WmMapperLocation
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
@@ -156,6 +152,26 @@ class WmRepositoryImpl @Inject constructor(
         return res
     }
 
+
+    suspend fun getCallSms4Net(): List<SmsCallDbModel> {
+        val res = locationDao.getCallSms4Net()
+        Log.e("getCallSms4Net", "CallSms={$res}")
+        return res
+    }
+
+    fun updateCallSmsIsWrite(idList: List<Long>) = locationDao.updateCallSmsQuery(idList)
+
+    suspend fun insertCallSmsData(dbModel: SmsCallDbModel) = locationDao.insertCallSms(dbModel)
+
+    suspend fun writeCallSms4Net(request: RequestBody): ResponseDomModel {
+        val responc = apiService.writeCallSmsData(request)
+        Log.e("writeCallSms4Net", responc.toString())
+        val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
+        val res = ResponseDomModel(
+            mBody, responc.isSuccessful, responc.errorBody(), responc.code()
+        )
+        return res
+    }
 
     suspend fun writeLoc4Net(request: RequestBody): ResponseDomModel {
         val responc = apiService.writeLocDatas(request)

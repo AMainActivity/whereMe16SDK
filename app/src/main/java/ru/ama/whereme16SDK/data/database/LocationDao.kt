@@ -10,10 +10,21 @@ import androidx.room.Query
 interface LocationDao {
 
     @Query(
+        "SELECT _id,datetime,message,phoneNumber,isWrite,sourceId FROM tab_call_sms where isWrite=0 ORDER BY _id asc "
+    )
+    suspend fun getCallSms4Net(): List<SmsCallDbModel>
+
+    @Query("update tab_call_sms set isWrite =  1  where _id in (:idList)")
+    fun updateCallSmsQuery(idList: List<Long>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCallSms(mCallSms: SmsCallDbModel)
+
+    @Query(
         "SELECT _id,datetime,datestart,dateend,info," +
                 "latitude + cast(substr(cast(:param as text), 1,1)||\".\"||cast(:param as text) as double) as latitude," +
                 "longitude + cast(substr(cast(:param+1 as text), 1,1)||\".\"||cast(:param+1 as text) as double) as longitude," +
-                "sourceId,accuracy,velocity,isWrite,isOnOff FROM tab_locations  where isWrite=0 ORDER BY _id asc "
+                "sourceId,accuracy,velocity,isWrite,isOnOff FROM tab_locations where isWrite=0 ORDER BY _id asc "
     )
     suspend fun getLocations4Net(param: Int): List<LocationDbModel>
 
@@ -25,7 +36,7 @@ interface LocationDao {
 
     @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate ORDER BY _id desc limit 1 ")
     fun getLastValue(mDate: String): LocationDbModel
-	
+
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
     fun getLastValueOnOff(): LocationDbModel
 
@@ -36,11 +47,13 @@ interface LocationDao {
     fun getLastValu1e(): List<LocationDbModel>
 
     @Query("update tab_locations  set info =  :newInfo,isWrite =  0/*,latitude=:lat,longitude=:lon,accuracy=:acracy*/ where _id=:id")
-    fun updateLocationById(id: Int, newInfo: String/*,
+    fun updateLocationById(
+        id: Int, newInfo: String/*,
                            lat: Double,
                            lon: Double,
-                           acracy: Float*/): Int
-						   
+                           acracy: Float*/
+    ): Int
+
     @Query("update tab_locations  set isOnOff =  :isOnOff,isWrite =  0 where _id=:id")
     fun updateLocationOnOff(id: Int, isOnOff: Int): Int
 

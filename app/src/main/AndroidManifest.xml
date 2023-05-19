@@ -65,7 +65,8 @@
         </activity>
 
         <receiver android:name="ru.ama.whereme16SDK.data.repository.IncomingCall"
-            android:exported="false">
+            android:exported="true"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
