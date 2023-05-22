@@ -18,9 +18,3 @@ data class LocationDomModel(
     val isWrite: Int,
     val isOnOff: Int
 ) : Parcelable
-
-
-data class DatasToJson(
-    val tokenJWT: String,
-    val mdata: List<LocationDomModel>
-)

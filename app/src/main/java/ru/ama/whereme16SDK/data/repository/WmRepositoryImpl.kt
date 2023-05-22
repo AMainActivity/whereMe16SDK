@@ -11,9 +11,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Looper
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -22,13 +20,16 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.gson.Gson
 import kotlinx.coroutines.*
+import okhttp3.MediaType
 import okhttp3.RequestBody
+import org.json.JSONObject
 import ru.ama.ottest.data.mapper.WmMapperJwt
 import ru.ama.ottest.data.network.WmApiService
 import ru.ama.whereme16SDK.data.database.*
 import ru.ama.whereme16SDK.data.mapper.WmMapperLocation
 import ru.ama.whereme16SDK.data.mapper.WmMapperSettings
 import ru.ama.whereme16SDK.data.mapper.WmMapperUserInfoSettings
+import ru.ama.whereme16SDK.data.network.model.DatasToJsonDto
 import ru.ama.whereme16SDK.di.ApplicationScope
 import ru.ama.whereme16SDK.domain.entity.*
 import ru.ama.whereme16SDK.domain.repository.WmRepository
@@ -171,6 +172,72 @@ class WmRepositoryImpl @Inject constructor(
             mBody, responc.isSuccessful, responc.errorBody(), responc.code()
         )
         return res
+    }
+
+    fun insertPhoneNumber(number:String?){
+        externalScope.launch(Dispatchers.IO) {
+            val res = SmsCallDbModel(
+                getDate(System.currentTimeMillis()),
+                null,
+                number,
+                0,
+                2
+            )
+            insertCallSmsData(res)
+        }
+    }
+
+    fun sendCallSms4Net() {
+        if (isInternetConnected()) {
+            val idList: MutableList<Long> = ArrayList()
+            val d = externalScope.async(Dispatchers.IO) {
+                val res = getCallSms4Net()
+                for (i in res.indices) {
+                    idList.add(res[i]._id)
+                }
+                val json1 = Gson().toJson(DatasToJsonDto(getWmUserInfoSetings().tokenJwt, res))
+                // Log.e("Gson", json1.toString())
+                RequestBody.create(
+                    MediaType.parse("application/json"), json1.toString()
+                )
+            }
+            externalScope.launch(Dispatchers.IO) {
+                val sdsd = d.await()
+                //Log.e("idList", idList.size.toString())
+                if (idList.size > 0) {
+                    try {
+
+                        Log.e("Gson2", sdsd.toString())
+                        val response = writeCallSms4Net(sdsd)
+                        //  Log.e("responseCode", response.respCode.toString())
+                        Log.e("response", response.toString())
+                        if (response.respIsSuccess) {
+                            response.mBody?.let {
+                                if (!it.error && it.message.isNotEmpty()) {
+                                    updateCallSmsIsWrite(idList)
+                                }
+                                //reRunGetLocations()
+                            }
+                        } else {
+                            try {
+                                val jObjError = response.respError?.string()?.let { JSONObject(it) }
+
+                                /* Log.e(
+                                     "responseError",
+                                     jObjError.toString()
+                                 )*/
+                            } catch (e: Exception) {
+                                //Log.e("responseError", e.message.toString())
+                            }
+                            //reRunGetLocations()
+                        }
+                    } catch (e: Exception) {
+                        //reRunGetLocations()
+                    }
+                } //else reRunGetLocations()
+
+            }
+        } //else reRunGetLocations()
     }
 
     suspend fun writeLoc4Net(request: RequestBody): ResponseDomModel {

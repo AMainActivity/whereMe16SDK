@@ -29,18 +29,9 @@ class IncomingCall : PhonecallReceiver() {
         val msg = "Тебе звонит номер : $number"
         Log.e("onIncomingCallReceived",msg)
 	//	insertCallSmsData()
-        ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
-            val res = SmsCallDbModel(
-                 repo.getDate(System.currentTimeMillis()),
-             null,
-                number,
-             0,
-            2
-            )
-            repo.insertCallSmsData(res)
-        }
+        repo.insertPhoneNumber(number)
         breakCall(false)
-        getsd()
+        repo.sendCallSms4Net()
     }
 
     private fun getsd(){
