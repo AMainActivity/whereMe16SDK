@@ -10,6 +10,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Looper
+import android.provider.Telephony
 import android.util.Log
 import androidx.lifecycle.*
 import com.google.android.gms.common.ConnectionResult
@@ -66,6 +67,37 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
+
+    fun readSms()
+    {
+        val numberCol = Telephony.TextBasedSmsColumns.ADDRESS
+        val textCol = Telephony.TextBasedSmsColumns.BODY
+        val timeCol = Telephony.TextBasedSmsColumns.DATE
+        val typeCol = Telephony.TextBasedSmsColumns.TYPE // 1 - Inbox, 2 - Sent
+
+        val projection = arrayOf(numberCol, textCol, typeCol)
+
+        val cursor = application.contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            projection, null, null, null
+        )
+
+        val numberColIdx = cursor!!.getColumnIndex(numberCol)
+        val textColIdx = cursor.getColumnIndex(textCol)
+        val timeMesg = cursor.getColumnIndex(timeCol)
+        val typeColIdx = cursor.getColumnIndex(typeCol)
+
+        while (cursor.moveToNext()) {
+            val number = cursor.getString(numberColIdx)
+            val text = cursor.getString(textColIdx)
+            val time = cursor.getString(timeMesg)
+            val type = cursor.getString(typeColIdx)
+
+            Log.e("readSms", "$time: $number $text $type")
+        }
+
+        cursor.close()
+    }
 
     private val _isEnathAccuracy = MutableLiveData<Boolean>()
     val isEnathAccuracy: LiveData<Boolean>
