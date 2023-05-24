@@ -7,7 +7,7 @@ import ru.ama.whereme16SDK.data.database.SmsCallDbModel.Companion.tabCallSms
 
 @Entity(tableName = tabCallSms)
 data class SmsCallDbModel(
-    val datetime: String,
+    val datetime: Long,
     val message: String? = null,
     val phoneNumber: String? = null,
     val isWrite: Int,

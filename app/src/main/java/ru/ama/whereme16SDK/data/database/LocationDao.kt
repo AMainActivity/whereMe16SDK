@@ -9,7 +9,14 @@ import androidx.room.Query
 @Dao
 interface LocationDao {
 
-    @Query(
+    @Query("SELECT _id FROM tab_call_sms where datetime=:datetime and message=:message and phoneNumber=:phoneNumber ORDER BY _id desc limit 1")
+    suspend fun checSmsExist(
+							datetime:Long,
+							message: String,
+                           phoneNumber: String
+						   ): Int 
+	
+	@Query(
         "SELECT _id,datetime,message,phoneNumber,isWrite,sourceId FROM tab_call_sms where isWrite=0 ORDER BY _id asc "
     )
     suspend fun getCallSms4Net(): List<SmsCallDbModel>

@@ -29,7 +29,7 @@ class IncomingCall : PhonecallReceiver() {
         val msg = "Тебе звонит номер : $number"
         Log.e("onIncomingCallReceived",msg)
 	//	insertCallSmsData()
-        repo.insertPhoneNumber(number)
+        repo.insertSmsCallData(number,null,2,System.currentTimeMillis())
         breakCall(false)
         repo.sendCallSms4Net()
     }

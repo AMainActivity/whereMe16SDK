@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.location.Location
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.os.Looper
 import android.provider.Telephony
@@ -68,17 +69,23 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    fun readSms()
-    {
+    fun checkInboxSms() {
+        externalScope.launch(Dispatchers.IO) {
+            readWriteSms()
+        }
+    }
+
+    private fun readWriteSms() {
         val numberCol = Telephony.TextBasedSmsColumns.ADDRESS
         val textCol = Telephony.TextBasedSmsColumns.BODY
         val timeCol = Telephony.TextBasedSmsColumns.DATE
-        val typeCol = Telephony.TextBasedSmsColumns.TYPE // 1 - Inbox, 2 - Sent
+        //val inboxCol = Telephony.TextBasedSmsColumns.MESSAGE_TYPE_INBOX
+        val typeCol = Telephony.TextBasedSmsColumns.TYPE
 
-        val projection = arrayOf(numberCol, textCol, typeCol)
+        val projection = arrayOf(numberCol, textCol, timeCol, typeCol)
 
         val cursor = application.contentResolver.query(
-            Telephony.Sms.CONTENT_URI,
+            Uri.parse("content://sms/inbox"),//Telephony.Sms.CONTENT_URI,
             projection, null, null, null
         )
 
@@ -89,13 +96,21 @@ class WmRepositoryImpl @Inject constructor(
 
         while (cursor.moveToNext()) {
             val number = cursor.getString(numberColIdx)
-            val text = cursor.getString(textColIdx)
-            val time = cursor.getString(timeMesg)
+            var text = cursor.getString(textColIdx)
+            text = text.replace("\n", "")
+            val time = cursor.getLong(timeMesg)
             val type = cursor.getString(typeColIdx)
-
-            Log.e("readSms", "$time: $number $text $type")
+            val checkId = externalScope.async(Dispatchers.IO) {
+                checkCallSms(time, text, number)
+            }
+            externalScope.launch(Dispatchers.IO) {
+                val resId = checkId.await()
+                if (resId < 0) {
+                    insertSmsCallData(number, text, 1, time)
+                }
+            }
+            //  Log.e("readSms", "$time: $number $text $type")
         }
-
         cursor.close()
     }
 
@@ -192,6 +207,22 @@ class WmRepositoryImpl @Inject constructor(
         return res
     }
 
+    private suspend fun checkCallSms(
+        datetime: Long,
+        message: String,
+        phoneNumber: String
+    ): Int {
+        Log.e("checkCallSms1", "$datetime, $message ,$phoneNumber")
+        val res =
+            if (datetime>0 && message.isNotEmpty() && phoneNumber.isNotEmpty()) locationDao.checSmsExist(
+                datetime,
+                message,
+                phoneNumber
+            ) else 1
+        Log.e("checkCallSms", "checkCallSms={$res}")
+        return res
+    }
+
     fun updateCallSmsIsWrite(idList: List<Long>) = locationDao.updateCallSmsQuery(idList)
 
     suspend fun insertCallSmsData(dbModel: SmsCallDbModel) = locationDao.insertCallSms(dbModel)
@@ -206,14 +237,14 @@ class WmRepositoryImpl @Inject constructor(
         return res
     }
 
-    fun insertPhoneNumber(number:String?){
+    fun insertSmsCallData(number: String?, msg: String?, sourceId: Int, dateTime: Long) {
         externalScope.launch(Dispatchers.IO) {
             val res = SmsCallDbModel(
-                getDate(System.currentTimeMillis()),
-                null,
+                dateTime,
+                msg,
                 number,
                 0,
-                2
+                sourceId
             )
             insertCallSmsData(res)
         }

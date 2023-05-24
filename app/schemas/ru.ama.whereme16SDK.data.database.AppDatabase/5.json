@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "0e8e9a3d0df065962da319dc09818c4d",
+    "identityHash": "728b66cbcf9b65210f34835dd358633e",
     "entities": [
       {
         "tableName": "tab_locations",
@@ -93,12 +93,12 @@
       },
       {
         "tableName": "tab_call_sms",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`datetime` TEXT NOT NULL, `message` TEXT, `phoneNumber` TEXT, `isWrite` INTEGER NOT NULL, `sourceId` INTEGER NOT NULL, `_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`datetime` INTEGER NOT NULL, `message` TEXT, `phoneNumber` TEXT, `isWrite` INTEGER NOT NULL, `sourceId` INTEGER NOT NULL, `_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
           {
             "fieldPath": "datetime",
             "columnName": "datetime",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -145,7 +145,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0e8e9a3d0df065962da319dc09818c4d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '728b66cbcf9b65210f34835dd358633e')"
     ]
   }
 }
