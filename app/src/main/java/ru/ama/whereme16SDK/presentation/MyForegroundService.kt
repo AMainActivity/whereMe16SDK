@@ -225,6 +225,8 @@ class MyForegroundService : LifecycleService() {
         //  log("onStartCommand")
         startTimer()
         repo.checkInboxSms()
+        lifecycleScope.async(Dispatchers.IO) {
+            val res = repo.getCallSms4Net()}
         repo.onLocationChangedListener = {
             //   Log.e("onLocationListener", "$it / $isEnath")
             if (it) {

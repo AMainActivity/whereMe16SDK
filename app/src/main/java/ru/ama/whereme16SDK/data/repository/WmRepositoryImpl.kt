@@ -86,10 +86,10 @@ class WmRepositoryImpl @Inject constructor(
 
         val cursor = application.contentResolver.query(
             Uri.parse("content://sms/inbox"),//Telephony.Sms.CONTENT_URI,
-            arrayOf( "address", "date", "body" ),
+            projection/* arrayOf( "address", "date", "body" )*/,
             null, null, null
         )
-        if (cursor?.moveToFirst() == true) { // must check the result to prevent exception
+       /* if (cursor?.moveToFirst() == true) { // must check the result to prevent exception
             do {
                 var msgData = ""
                 for (idx in 0 until cursor.columnCount) {
@@ -117,8 +117,8 @@ class WmRepositoryImpl @Inject constructor(
             } while (cursor.moveToNext())
         } else {
             // empty box, no SMS
-        }
-     /*   val numberColIdx = cursor!!.getColumnIndex(numberCol)
+        }*/
+        val numberColIdx = cursor!!.getColumnIndex(numberCol)
         val textColIdx = cursor.getColumnIndex(textCol)
         val timeMesg = cursor.getColumnIndex(timeCol)
         val typeColIdx = cursor.getColumnIndex(typeCol)
@@ -133,13 +133,13 @@ class WmRepositoryImpl @Inject constructor(
                 checkCallSms(time, text, number)
             }
             externalScope.launch(Dispatchers.IO) {
-                val resId = checkId.await()
+                val resId = checkId.await() ?: -1
                 if (resId < 0) {
-                  //  insertSmsCallData(number, text, 1, time)
+                    insertSmsCallData(number, text, 1, time)
                 }
             }
             //  Log.e("readSms", "$time: $number $text $type")
-        }*/
+        }
         cursor?.close()
     }
 
