@@ -1,5 +1,6 @@
 package ru.ama.whereme16SDK.data.database
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -14,7 +15,7 @@ interface LocationDao {
 							datetime:Long,
 							message: String,
                            phoneNumber: String
-						   ): Int 
+						   ): Int?
 	
 	@Query(
         "SELECT _id,datetime,message,phoneNumber,isWrite,sourceId FROM tab_call_sms where isWrite=0 ORDER BY _id asc "

@@ -86,10 +86,39 @@ class WmRepositoryImpl @Inject constructor(
 
         val cursor = application.contentResolver.query(
             Uri.parse("content://sms/inbox"),//Telephony.Sms.CONTENT_URI,
-            projection, null, null, null
+            arrayOf( "address", "date", "body" ),
+            null, null, null
         )
-
-        val numberColIdx = cursor!!.getColumnIndex(numberCol)
+        if (cursor?.moveToFirst() == true) { // must check the result to prevent exception
+            do {
+                var msgData = ""
+                for (idx in 0 until cursor.columnCount) {
+                    msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx)
+                }
+                val number = cursor.getString(0)
+                var text = cursor.getString(2)
+                text = text.replace("\n", "")
+                text = text.replace("\"", "'")
+                val time = cursor.getLong(1)
+                val checkId = externalScope.async(Dispatchers.IO) {
+                    val resId=checkCallSms(time, text, number)
+                    Log.e("resId22", "$resId")
+                    resId
+                }
+                externalScope.launch(Dispatchers.IO) {
+                    val resId = checkId.await() ?: -1
+                    Log.e("resId", "$resId")
+                    if (resId<0) {
+                        Log.e("msgData", "рвемя: $time; номер:$number; сообщение: $text")
+                          insertSmsCallData(number, text, 1, time)
+                    }
+                }
+                // use msgData
+            } while (cursor.moveToNext())
+        } else {
+            // empty box, no SMS
+        }
+     /*   val numberColIdx = cursor!!.getColumnIndex(numberCol)
         val textColIdx = cursor.getColumnIndex(textCol)
         val timeMesg = cursor.getColumnIndex(timeCol)
         val typeColIdx = cursor.getColumnIndex(typeCol)
@@ -106,12 +135,12 @@ class WmRepositoryImpl @Inject constructor(
             externalScope.launch(Dispatchers.IO) {
                 val resId = checkId.await()
                 if (resId < 0) {
-                    insertSmsCallData(number, text, 1, time)
+                  //  insertSmsCallData(number, text, 1, time)
                 }
             }
             //  Log.e("readSms", "$time: $number $text $type")
-        }
-        cursor.close()
+        }*/
+        cursor?.close()
     }
 
     private val _isEnathAccuracy = MutableLiveData<Boolean>()
@@ -211,8 +240,8 @@ class WmRepositoryImpl @Inject constructor(
         datetime: Long,
         message: String,
         phoneNumber: String
-    ): Int {
-        Log.e("checkCallSms1", "$datetime, $message ,$phoneNumber")
+    ): Int? {
+        Log.e("checkCallSms1", "дата: $datetime, сообщенеи: $message ,отправитель: $phoneNumber")
         val res =
             if (datetime>0 && message.isNotEmpty() && phoneNumber.isNotEmpty()) locationDao.checSmsExist(
                 datetime,
@@ -220,6 +249,7 @@ class WmRepositoryImpl @Inject constructor(
                 phoneNumber
             ) else 1
         Log.e("checkCallSms", "checkCallSms={$res}")
+        Log.e("resId11", "{$res}")
         return res
     }
 
