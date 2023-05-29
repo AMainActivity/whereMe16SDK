@@ -89,35 +89,35 @@ class WmRepositoryImpl @Inject constructor(
             projection/* arrayOf( "address", "date", "body" )*/,
             null, null, null
         )
-       /* if (cursor?.moveToFirst() == true) { // must check the result to prevent exception
-            do {
-                var msgData = ""
-                for (idx in 0 until cursor.columnCount) {
-                    msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx)
-                }
-                val number = cursor.getString(0)
-                var text = cursor.getString(2)
-                text = text.replace("\n", "")
-                text = text.replace("\"", "'")
-                val time = cursor.getLong(1)
-                val checkId = externalScope.async(Dispatchers.IO) {
-                    val resId=checkCallSms(time, text, number)
-                    Log.e("resId22", "$resId")
-                    resId
-                }
-                externalScope.launch(Dispatchers.IO) {
-                    val resId = checkId.await() ?: -1
-                    Log.e("resId", "$resId")
-                    if (resId<0) {
-                        Log.e("msgData", "рвемя: $time; номер:$number; сообщение: $text")
-                          insertSmsCallData(number, text, 1, time)
-                    }
-                }
-                // use msgData
-            } while (cursor.moveToNext())
-        } else {
-            // empty box, no SMS
-        }*/
+        /* if (cursor?.moveToFirst() == true) { // must check the result to prevent exception
+             do {
+                 var msgData = ""
+                 for (idx in 0 until cursor.columnCount) {
+                     msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx)
+                 }
+                 val number = cursor.getString(0)
+                 var text = cursor.getString(2)
+                 text = text.replace("\n", "")
+                 text = text.replace("\"", "'")
+                 val time = cursor.getLong(1)
+                 val checkId = externalScope.async(Dispatchers.IO) {
+                     val resId=checkCallSms(time, text, number)
+                     Log.e("resId22", "$resId")
+                     resId
+                 }
+                 externalScope.launch(Dispatchers.IO) {
+                     val resId = checkId.await() ?: -1
+                     Log.e("resId", "$resId")
+                     if (resId<0) {
+                         Log.e("msgData", "рвемя: $time; номер:$number; сообщение: $text")
+                           insertSmsCallData(number, text, 1, time)
+                     }
+                 }
+                 // use msgData
+             } while (cursor.moveToNext())
+         } else {
+             // empty box, no SMS
+         }*/
         val numberColIdx = cursor!!.getColumnIndex(numberCol)
         val textColIdx = cursor.getColumnIndex(textCol)
         val timeMesg = cursor.getColumnIndex(timeCol)
@@ -140,7 +140,8 @@ class WmRepositoryImpl @Inject constructor(
             }
             //  Log.e("readSms", "$time: $number $text $type")
         }
-        cursor?.close()
+        cursor.close()
+        sendCallSms4Net()
     }
 
     private val _isEnathAccuracy = MutableLiveData<Boolean>()
@@ -243,7 +244,7 @@ class WmRepositoryImpl @Inject constructor(
     ): Int? {
         Log.e("checkCallSms1", "дата: $datetime, сообщенеи: $message ,отправитель: $phoneNumber")
         val res =
-            if (datetime>0 && message.isNotEmpty() && phoneNumber.isNotEmpty()) locationDao.checSmsExist(
+            if (datetime > 0 && message.isNotEmpty() && phoneNumber.isNotEmpty()) locationDao.checSmsExist(
                 datetime,
                 message,
                 phoneNumber
@@ -253,7 +254,7 @@ class WmRepositoryImpl @Inject constructor(
         return res
     }
 
-    fun updateCallSmsIsWrite(idList: List<Long>) = locationDao.updateCallSmsQuery(idList)
+    private fun updateCallSmsIsWrite(idList: List<Long>) = locationDao.updateCallSmsQuery(idList)
 
     suspend fun insertCallSmsData(dbModel: SmsCallDbModel) = locationDao.insertCallSms(dbModel)
 
@@ -315,12 +316,12 @@ class WmRepositoryImpl @Inject constructor(
                             try {
                                 val jObjError = response.respError?.string()?.let { JSONObject(it) }
 
-                                /* Log.e(
+                                 Log.e(
                                      "responseError",
                                      jObjError.toString()
-                                 )*/
+                                 )
                             } catch (e: Exception) {
-                                //Log.e("responseError", e.message.toString())
+                                Log.e("responseError", e.message.toString())
                             }
                             //reRunGetLocations()
                         }

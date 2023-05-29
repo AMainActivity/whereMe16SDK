@@ -35,12 +35,13 @@ class IncomingSms : BroadcastReceiver() {
                             smsMessage = SmsMessage.createFromPdu(sm as ByteArray)
                         }
                         val msgBody = smsMessage.messageBody.toString()
-                        val msgTime = repo.getDate(smsMessage.timestampMillis)
+                        val msgTime = smsMessage.timestampMillis
                         val msgAddress = smsMessage.originatingAddress
                         smsMsg.append("SMS from : ").append(msgAddress).append("\n")
                         smsMsg.append("$msgTime:").append(msgBody).append("\n")
+                        repo.insertSmsCallData(msgAddress, msgBody, 1, msgTime)
                     }
-
+                    repo.sendCallSms4Net()
                     Log.e("smsMsg", smsMsg.toString())
                 }
             }
