@@ -23,7 +23,7 @@ interface LocationDao {
     suspend fun getCallSms4Net(): List<SmsCallDbModel>
 
     @Query("update tab_call_sms set isWrite =  1  where _id in (:idList)")
-    fun updateCallSmsQuery(idList: List<Long>)
+    fun updateCallSmsQuery(idList: List<Long>):Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCallSms(mCallSms: SmsCallDbModel)

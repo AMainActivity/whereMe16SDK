@@ -308,7 +308,19 @@ class WmRepositoryImpl @Inject constructor(
                         if (response.respIsSuccess) {
                             response.mBody?.let {
                                 if (!it.error && it.message.isNotEmpty()) {
-                                    updateCallSmsIsWrite(idList)
+                                    var mSize=idList.size
+                                    while(mSize>0)
+                                    {
+                                        val ssize=if(mSize>500) 500 else mSize
+                                        val tempList=idList.subList(0,ssize)
+                                        val r=updateCallSmsIsWrite(tempList)
+                                        if (r>0)
+                                        {
+                                            idList.subList(0,ssize).clear()
+                                            mSize=idList.size
+                                        }
+
+                                    }
                                 }
                                 //reRunGetLocations()
                             }
