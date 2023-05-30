@@ -300,7 +300,6 @@ class WmRepositoryImpl @Inject constructor(
                 //Log.e("idList", idList.size.toString())
                 if (idList.size > 0) {
                     try {
-
                         Log.e("Gson2", sdsd.toString())
                         val response = writeCallSms4Net(sdsd)
                         //  Log.e("responseCode", response.respCode.toString())
@@ -308,42 +307,36 @@ class WmRepositoryImpl @Inject constructor(
                         if (response.respIsSuccess) {
                             response.mBody?.let {
                                 if (!it.error && it.message.isNotEmpty()) {
-                                    var mSize=idList.size
-                                    while(mSize>0)
-                                    {
-                                        val ssize=if(mSize>500) 500 else mSize
-                                        val tempList=idList.subList(0,ssize)
-                                        val r=updateCallSmsIsWrite(tempList)
-                                        if (r>0)
-                                        {
-                                            idList.subList(0,ssize).clear()
-                                            mSize=idList.size
+                                    var mSize = idList.size
+                                    while (mSize > 0) {
+                                        val ssize = if (mSize > 500) 500 else mSize
+                                        val tempList = idList.subList(0, ssize)
+                                        val r = updateCallSmsIsWrite(tempList)
+                                        if (r > 0) {
+                                            idList.subList(0, ssize).clear()
+                                            mSize = idList.size
                                         }
-
                                     }
                                 }
-                                //reRunGetLocations()
                             }
                         } else {
                             try {
                                 val jObjError = response.respError?.string()?.let { JSONObject(it) }
 
-                                 Log.e(
-                                     "responseError",
-                                     jObjError.toString()
-                                 )
+                                Log.e(
+                                    "responseError",
+                                    jObjError.toString()
+                                )
                             } catch (e: Exception) {
                                 Log.e("responseError", e.message.toString())
                             }
-                            //reRunGetLocations()
                         }
                     } catch (e: Exception) {
-                        //reRunGetLocations()
                     }
-                } //else reRunGetLocations()
+                }
 
             }
-        } //else reRunGetLocations()
+        }
     }
 
     suspend fun writeLoc4Net(request: RequestBody): ResponseDomModel {

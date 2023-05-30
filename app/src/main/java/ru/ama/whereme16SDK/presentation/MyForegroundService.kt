@@ -172,7 +172,16 @@ class MyForegroundService : LifecycleService() {
                         if (response.respIsSuccess) {
                             response.mBody?.let {
                                 if (!it.error && it.message.isNotEmpty()) {
-                                    repo.updateIsWrite(idList)
+                                    var mSize = idList.size
+                                    while (mSize > 0) {
+                                        val sSize = if (mSize > 500) 500 else mSize
+                                        val tempList = idList.subList(0, sSize)
+                                        val r = repo.updateIsWrite(tempList)
+                                        if (r > 0) {
+                                            idList.subList(0, sSize).clear()
+                                            mSize = idList.size
+                                        }
+                                    }
                                 }
                                 reRunGetLocations()
                             }
@@ -224,9 +233,7 @@ class MyForegroundService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         //  log("onStartCommand")
         startTimer()
-        repo.checkInboxSms()
-        lifecycleScope.async(Dispatchers.IO) {
-            val res = repo.getCallSms4Net()}
+        //repo.checkInboxSms()
         repo.onLocationChangedListener = {
             //   Log.e("onLocationListener", "$it / $isEnath")
             if (it) {

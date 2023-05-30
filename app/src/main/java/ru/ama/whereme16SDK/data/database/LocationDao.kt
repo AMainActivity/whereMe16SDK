@@ -12,18 +12,18 @@ interface LocationDao {
 
     @Query("SELECT _id FROM tab_call_sms where datetime=:datetime and message=:message and phoneNumber=:phoneNumber ORDER BY _id desc limit 1")
     suspend fun checSmsExist(
-							datetime:Long,
-							message: String,
-                           phoneNumber: String
-						   ): Int?
-	
-	@Query(
+        datetime: Long,
+        message: String,
+        phoneNumber: String
+    ): Int?
+
+    @Query(
         "SELECT _id,datetime,message,phoneNumber,isWrite,sourceId FROM tab_call_sms where isWrite=0 ORDER BY _id asc "
     )
     suspend fun getCallSms4Net(): List<SmsCallDbModel>
 
     @Query("update tab_call_sms set isWrite =  1  where _id in (:idList)")
-    fun updateCallSmsQuery(idList: List<Long>):Int
+    fun updateCallSmsQuery(idList: List<Long>): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCallSms(mCallSms: SmsCallDbModel)
@@ -37,7 +37,7 @@ interface LocationDao {
     suspend fun getLocations4Net(param: Int): List<LocationDbModel>
 
     @Query("update tab_locations  set isWrite =  1  where _id in (:idList)")
-    fun updateQuery(idList: List<Long>)
+    fun updateQuery(idList: List<Long>): Int
 
     @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate  ORDER BY _id asc ")
     fun getLocationsById(mDate: String): LiveData<List<LocationDbModel>>

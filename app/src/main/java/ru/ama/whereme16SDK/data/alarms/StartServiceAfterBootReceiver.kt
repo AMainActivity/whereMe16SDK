@@ -41,8 +41,7 @@ class StartServiceAfterBootReceiver : BroadcastReceiver() {
             // repo.runAlarm(7)
             startService(context)
         }
-        //repo.getSettingsModel()
-
+        repo.checkInboxSms()
     }
 
     private fun startService(context: Context?) {
@@ -61,7 +60,6 @@ class StartServiceAfterBootReceiver : BroadcastReceiver() {
         } catch (e: Exception) {
             Log.d("doAlarm", "Exception getting location -->  ${e.message}")
         }
-
     }
 
     private companion object {
