@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Looper
 import android.provider.Telephony
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -35,6 +36,7 @@ import ru.ama.whereme16SDK.data.network.model.DatasToJsonDto
 import ru.ama.whereme16SDK.di.ApplicationScope
 import ru.ama.whereme16SDK.domain.entity.*
 import ru.ama.whereme16SDK.domain.repository.WmRepository
+import ru.ama.whereme16SDK.presentation.MyForegroundService
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -130,11 +132,11 @@ class WmRepositoryImpl @Inject constructor(
             val time = cursor.getLong(timeMesg)
             val type = cursor.getString(typeColIdx)
             val checkId = externalScope.async(Dispatchers.IO) {
-                checkCallSms(time, text, number)
+                checkCallSms(time, text.substring(0,5), number)
             }
             externalScope.launch(Dispatchers.IO) {
                 val resId = checkId.await() ?: -1
-                if (resId < 0) {
+                if (resId < 0) {Log.e("resId", "$resId")
                     insertSmsCallData(number, text, 1, time)
                 }
             }
@@ -198,11 +200,10 @@ class WmRepositoryImpl @Inject constructor(
 
 
     override suspend fun getLocationById(mDate: String) =
-        Transformations.map(locationDao.getLocationsById(mDate)) {
-            it.map {
+        locationDao.getLocationsById(mDate).map {
                 mapper.mapDbModelToEntity(it)
             }
-        }
+
 
 
     override suspend fun checkWmJwToken(request: RequestBody): ResponseDomModel {
@@ -250,7 +251,7 @@ class WmRepositoryImpl @Inject constructor(
                 phoneNumber
             ) else 1
         Log.e("checkCallSms", "checkCallSms={$res}")
-        Log.e("resId11", "{$res}")
+      //  Log.e("resId11", "{$res}")
         return res
     }
 
@@ -356,7 +357,6 @@ class WmRepositoryImpl @Inject constructor(
             }
         }
     }
-
     suspend fun writeLoc4Net(request: RequestBody): ResponseDomModel {
         val responc = apiService.writeLocDatas(request)
         Log.e("writeLoc4Net", responc.toString())
@@ -413,9 +413,11 @@ class WmRepositoryImpl @Inject constructor(
     private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
 
 
+    override fun getLastValue4Show():LiveData<LocationDomModel>?
+    =if (locationDao.getLastValue4Show()!=null) Transformations.map(locationDao.getLastValue4Show()!!){mapper.mapDbModelToEntity(it)}
+    else null
+
     fun getLastValueFromDbOnOff() = locationDao.getLastValueOnOff()
-
-
     fun getDate(milliSeconds: Long): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val calendar: Calendar = Calendar.getInstance()

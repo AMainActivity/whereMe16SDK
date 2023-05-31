@@ -6,11 +6,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import ru.ama.whereme16SDK.domain.entity.LocationDomModel
 
 @Dao
 interface LocationDao {
 
-    @Query("SELECT _id FROM tab_call_sms where datetime=:datetime and message=:message and phoneNumber=:phoneNumber ORDER BY _id desc limit 1")
+    @Query("SELECT _id FROM tab_call_sms where datetime=:datetime and message like :message || '%' and phoneNumber=:phoneNumber ORDER BY _id desc limit 1")
     suspend fun checSmsExist(
         datetime: Long,
         message: String,
@@ -40,14 +41,16 @@ interface LocationDao {
     fun updateQuery(idList: List<Long>): Int
 
     @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate  ORDER BY _id asc ")
-    fun getLocationsById(mDate: String): LiveData<List<LocationDbModel>>
+    fun getLocationsById(mDate: String): List<LocationDbModel>
 
     @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate ORDER BY _id desc limit 1 ")
     fun getLastValue(mDate: String): LocationDbModel
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
-    fun getLastValueOnOff(): LocationDbModel
+    fun getLastValue4Show(): LiveData<LocationDbModel>?
 
+    @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
+    fun getLastValueOnOff(): LocationDbModel
     @Query(
         "SELECT _id,strftime('%d.%m.%Y %H:%M:%S', datestart / 1000, 'unixepoch', 'localtime') as datetime,datestart,dateend," +
                 "strftime('%d.%m.%Y %H:%M:%S', datestart / 1000, 'unixepoch') as info,latitude,longitude,sourceId,accuracy,velocity,isWrite,isOnOff FROM tab_locations ORDER BY _id desc limit 1 "

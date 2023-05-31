@@ -233,7 +233,7 @@ class MyForegroundService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         //  log("onStartCommand")
         startTimer()
-        //repo.checkInboxSms()
+      //  repo.checkInboxSms()
         repo.onLocationChangedListener = {
             //   Log.e("onLocationListener", "$it / $isEnath")
             if (it) {

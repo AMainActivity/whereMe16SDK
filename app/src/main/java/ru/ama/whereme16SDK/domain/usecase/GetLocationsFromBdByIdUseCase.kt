@@ -7,5 +7,5 @@ class GetLocationsFromBdByIdUseCase @Inject constructor(
     private val repository: WmRepository
 ) {
 
-    suspend operator fun invoke(mDate: String) = repository.getLocationById(mDate)
+    operator fun invoke() = repository.getLastValue4Show()
 }

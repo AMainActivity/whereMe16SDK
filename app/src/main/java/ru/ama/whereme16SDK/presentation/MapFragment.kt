@@ -1,5 +1,6 @@
 package ru.ama.whereme16SDK.presentation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -40,10 +41,10 @@ class MapFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+       // setHasOptionsMenu(true)
     }
 
-
+/*
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_map_fragment, menu)
     }
@@ -60,6 +61,7 @@ class MapFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun showPopupDatePicker(anchor: View) {
         val popupWindow = PopupWindow(requireContext())
         popupWindow.setBackgroundDrawable(
@@ -86,12 +88,12 @@ class MapFragment : Fragment() {
         }
         popupWindow.contentView = binding2.root
         popupWindow.showAsDropDown(anchor)
-    }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -110,18 +112,18 @@ class MapFragment : Fragment() {
 
 
     private fun observeData(abSuntitle: String) {
-        viewModel.lldByDay?.observe(viewLifecycleOwner) {
+        viewModel.resData?.observe(viewLifecycleOwner) {
             (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = abSuntitle
             binding.frgmntMainTv.text =
                 HtmlCompat.fromHtml(viewModel.d(it), HtmlCompat.FROM_HTML_MODE_LEGACY)
-            binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
+         //   binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
             Log.e("getLocationlldByDay", it.toString())
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.lldByDay?.removeObservers(viewLifecycleOwner)
+        viewModel.resData?.removeObservers(viewLifecycleOwner)
         _binding = null
     }
 }
