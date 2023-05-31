@@ -281,6 +281,24 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
+    fun insertCallAndWriteToSertver(number: String?, msg: String?, sourceId: Int, dateTime: Long) {
+        val insertData = externalScope.async(Dispatchers.IO) {
+            val res = SmsCallDbModel(
+                dateTime,
+                msg,
+                number,
+                0,
+                sourceId
+            )
+            insertCallSmsData(res)
+        }
+        externalScope.launch {
+            val resultInsert = insertData.await()
+            sendCallSms4Net()
+        }
+    }
+
+
     fun sendCallSms4Net() {
         if (isInternetConnected()) {
             val idList: MutableList<Long> = ArrayList()

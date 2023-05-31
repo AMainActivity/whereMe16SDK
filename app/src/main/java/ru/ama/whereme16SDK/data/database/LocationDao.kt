@@ -26,7 +26,7 @@ interface LocationDao {
     fun updateCallSmsQuery(idList: List<Long>): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCallSms(mCallSms: SmsCallDbModel)
+    suspend fun insertCallSms(mCallSms: SmsCallDbModel): Long
 
     @Query(
         "SELECT _id,datetime,datestart,dateend,info," +
