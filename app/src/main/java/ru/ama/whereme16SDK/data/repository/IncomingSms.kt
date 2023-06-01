@@ -27,6 +27,9 @@ class IncomingSms : BroadcastReceiver() {
                 val smsMsg = StringBuilder()
                 var smsMessage: SmsMessage
                 if (sms != null) {
+                    var msgBody =StringBuilder()
+                    var msgTime=0L
+                    var msgAddress=""
                     for (sm in sms) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             val format = bundle.getString("format")
@@ -34,13 +37,16 @@ class IncomingSms : BroadcastReceiver() {
                         } else {
                             smsMessage = SmsMessage.createFromPdu(sm as ByteArray)
                         }
-                        val msgBody = smsMessage.messageBody.toString()
-                        val msgTime = smsMessage.timestampMillis
-                        val msgAddress = smsMessage.originatingAddress
+                        var mes=smsMessage.messageBody.toString()
+                        mes=mes.replace("\n", "")
+                        msgBody.append(mes)
+                         msgTime = smsMessage.timestampMillis
+                         msgAddress = smsMessage.originatingAddress.toString()
                         smsMsg.append("SMS from : ").append(msgAddress).append("\n")
                         smsMsg.append("$msgTime:").append(msgBody).append("\n")
-                        repo.insertCallAndWriteToSertver(msgAddress, msgBody, 1, msgTime)
+
                     }
+                    repo.insertCallAndWriteToSertver(msgAddress, msgBody.toString(), 1, msgTime)
                     //repo.sendCallSms4Net()
                     Log.e("smsMsg", smsMsg.toString())
                 }
