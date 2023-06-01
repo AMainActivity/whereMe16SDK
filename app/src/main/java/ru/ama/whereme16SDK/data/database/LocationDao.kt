@@ -18,6 +18,9 @@ interface LocationDao {
         phoneNumber: String
     ): Int?
 
+    @Query("SELECT * FROM tab_call_sms where sourceId=1 ORDER BY _id desc")
+    suspend fun checSms():  List<SmsCallDbModel>
+
     @Query(
         "SELECT _id,datetime,message,phoneNumber,isWrite,sourceId FROM tab_call_sms where isWrite=0 ORDER BY _id asc "
     )

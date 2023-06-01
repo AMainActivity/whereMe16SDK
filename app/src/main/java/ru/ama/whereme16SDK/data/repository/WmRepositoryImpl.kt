@@ -125,23 +125,35 @@ class WmRepositoryImpl @Inject constructor(
         val timeMesg = cursor.getColumnIndex(timeCol)
         val typeColIdx = cursor.getColumnIndex(typeCol)
 
-        while (cursor.moveToNext()) {
-            val number = cursor.getString(numberColIdx)
-            var text = cursor.getString(textColIdx)
-            text = text.replace("\n", "")
-            val time = cursor.getLong(timeMesg)
-            val type = cursor.getString(typeColIdx)
-            val checkId = externalScope.async(Dispatchers.IO) {
-                checkCallSms(time, text.substring(0,5), number)
-            }
-            externalScope.launch(Dispatchers.IO) {
-                val resId = checkId.await() ?: -1
-                if (resId < 0) {Log.e("resId", "$resId")
-                    insertSmsCallData(number, text, 1, time)
-                }
-            }
-            //  Log.e("readSms", "$time: $number $text $type")
+        val getSmsList = externalScope.async(Dispatchers.IO) {
+           locationDao.checSms()
         }
+       // externalScope.launch(Dispatchers.IO) {
+
+         //   val resSmsList: MutableList<SmsCallDbModel> = ArrayList()
+         //   val smsList = getSmsList.await()
+            while (cursor.moveToNext()) {
+                val number = cursor.getString(numberColIdx)
+                var text = cursor.getString(textColIdx)
+                text = text.replace("\n", "")
+                val time = cursor.getLong(timeMesg)
+                val type = cursor.getString(typeColIdx)
+                val checkId = externalScope.async(Dispatchers.IO) {
+                    checkCallSms(time, text.substring(0,5), number)
+                  //  val s=smsList.find { item -> item.datetime.equals(time) && item.phoneNumber.equals(number)&& item.message?.startsWith(text.substring(0,5)) == true }
+                   // s?._id
+                }
+                externalScope.launch(Dispatchers.IO) {
+                    val resId = checkId.await() ?: -1
+                    if (resId < 0) {Log.e("resId", "$resId")
+                       // resSmsList.add()
+                       insertSmsCallData(number, text, 1, time)
+                    }
+                }
+                //  Log.e("readSms", "$time: $number $text $type")
+            }
+      //  }
+
         cursor.close()
         sendCallSms4Net()
     }
@@ -300,7 +312,7 @@ class WmRepositoryImpl @Inject constructor(
     }
 
 
-    fun sendCallSms4Net() {
+    private fun sendCallSms4Net() {
         if (isInternetConnected()) {
             val idList: MutableList<Long> = ArrayList()
             val d = externalScope.async(Dispatchers.IO) {
