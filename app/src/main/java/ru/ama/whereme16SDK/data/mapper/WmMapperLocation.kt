@@ -7,8 +7,6 @@ import java.util.*
 import javax.inject.Inject
 
 class WmMapperLocation @Inject constructor() {
-
-
     fun mapDbModelToEntity(dbModel: LocationDbModel) = LocationDomModel(
         _id = dbModel._id,
         datetime = dbModel.datetime,
@@ -29,5 +27,4 @@ class WmMapperLocation @Inject constructor() {
         val format = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         return format.format(date)
     }
-
 }

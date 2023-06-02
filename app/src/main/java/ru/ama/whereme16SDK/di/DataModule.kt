@@ -28,7 +28,6 @@ interface DataModule {
     fun bindCoinRepository(impl: WmRepositoryImpl): WmRepository
 
     companion object {
-
         @Provides
         @ApplicationScope
         fun provideLocationDao(
@@ -36,7 +35,6 @@ interface DataModule {
         ): LocationDao {
             return AppDatabase.getInstance(application).locationDao()
         }
-
 
         @Provides
         @ApplicationScope
@@ -65,8 +63,5 @@ interface DataModule {
         @ApplicationScope
         @Provides
         fun providesCoroutineScope() = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     }
-
-
 }

@@ -6,17 +6,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-
 @Database(
-    entities = [LocationDbModel::class,SmsCallDbModel::class],
+    entities = [LocationDbModel::class, SmsCallDbModel::class],
     version = 5,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 3, to = 4),AutoMigration(from = 4, to = 5)]
+    autoMigrations = [AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5)]
 )
 //@TypeConverters(OffsetDateTimeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     companion object {
-
         private var db: AppDatabase? = null
         private const val DB_NAME = "main.db"
         private val LOCK = Any()
@@ -45,8 +43,5 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }*/
     }
-
     abstract fun locationDao(): LocationDao
-
-
 }

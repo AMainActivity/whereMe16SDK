@@ -9,7 +9,6 @@ import ru.ama.whereme16SDK.data.network.model.JsonDto
 import ru.ama.whereme16SDK.data.network.model.JsonJwtDto
 
 interface WmApiService {
-
     @POST(BuildConfig.GKK_CHECK_PHONE)
     suspend fun chekcKod(
         @Body request: RequestBody
@@ -24,10 +23,9 @@ interface WmApiService {
     suspend fun writeLocDatas(
         @Body request: RequestBody
     ): Response<JsonDto>
-	
+
     @POST(BuildConfig.GKK_WRITE_CALL_SMS_DATA)
     suspend fun writeCallSmsData(
         @Body request: RequestBody
     ): Response<JsonDto>
-		
 }

@@ -22,38 +22,35 @@ class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding
-        get() = _binding ?: throw RuntimeException(getString(R.string.fragment_settings_binding_null))
+        get() = _binding
+            ?: throw RuntimeException(getString(R.string.fragment_settings_binding_null))
     private lateinit var viewModel: SettingsViewModel
     private val component by lazy {
         (requireActivity().application as MyApp).component
     }
     private lateinit var workingTimeModel: SettingsDomModel
 
-
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
     override fun onAttach(context: Context) {
         component.inject(this)
-
         super.onAttach(context)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
 
     private fun observeViewModel() {
         viewModel.errorMinDistance.observe(viewLifecycleOwner) {
             val message = if (it) {
-                String.format(getString(R.string.set_format),10)
+                String.format(getString(R.string.set_format), 10)
             } else {
                 null
             }
@@ -61,7 +58,7 @@ class SettingsFragment : Fragment() {
         }
         viewModel.errorAccuracy.observe(viewLifecycleOwner) {
             val message = if (it) {
-                String.format(getString(R.string.set_format),50)
+                String.format(getString(R.string.set_format), 50)
             } else {
                 null
             }
@@ -71,15 +68,14 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = getString(R.string.frgmnt_set_label)
+        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle =
+            getString(R.string.frgmnt_set_label)
         viewModel = ViewModelProvider(this, viewModelFactory)[SettingsViewModel::class.java]
         workingTimeModel = viewModel.getSettings()
         observeViewModel()
         binding.frgmntSetSwitchStart.isChecked = viewModel.checkService()
-        binding.frgmntSetSwitchStart.setOnCheckedChangeListener{ view,isChecked->
-            if (isChecked)
-            {
+        binding.frgmntSetSwitchStart.setOnCheckedChangeListener { view, isChecked ->
+            if (isChecked) {
                 if (!viewModel.checkService()) {
                     ContextCompat.startForegroundService(
                         requireContext(),
@@ -87,19 +83,14 @@ class SettingsFragment : Fragment() {
                     )
                     Log.e("frgmntSetSwitchStart", "isMyServiceRunning")
                 }
-            }
-            else
-            {
+            } else {
                 if (viewModel.checkService()) {
                     Log.e("frgmntSetSwitchStart", "isMyServiceRunningFalse")
                     requireContext().stopService(MyForegroundService.newIntent(requireContext()))
-                   // viewModel.cancelAlarmService()
                 }
             }
         }
-
         setOtherSettings()
-
         binding.frgmntSetMdEt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
@@ -120,8 +111,6 @@ class SettingsFragment : Fragment() {
                 viewModel.validateInputData(s.toString(), SettingsViewNames.ACCURACY)
             }
         })
-
-
     }
 
     private fun setOtherSettings() {
@@ -133,6 +122,4 @@ class SettingsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-
 }

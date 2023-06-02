@@ -6,7 +6,6 @@ import javax.inject.Inject
 
 class WmMapperSettings @Inject constructor() {
 
-
     fun mapDataModelToDomain(dataModel: SettingsDataModel) = SettingsDomModel(
         minDist = dataModel.minDist,
         accuracy = dataModel.accuracy
@@ -16,6 +15,4 @@ class WmMapperSettings @Inject constructor() {
         minDist = domainModel.minDist,
         accuracy = domainModel.accuracy
     )
-
-
 }

@@ -53,15 +53,17 @@ class WmRepositoryImpl @Inject constructor(
     @ApplicationScope val externalScope: CoroutineScope,
     private val googleApiAvailability: GoogleApiAvailability,
     private val apiService: WmApiService,
-    private val mSettings: SharedPreferences
+    private val wmSettings: WmSettings
 ) : WmRepository {
 
 
     private lateinit var workingTimeModel: SettingsDomModel
     var mBestLoc = Location("bestLocationOfBadAccuracy")
     var onLocationChangedListener: ((Boolean) -> Unit)? = null
-
     private val callback = Callback()
+    private val _isEnathAccuracy = MutableLiveData<Boolean>()
+    val isEnathAccuracy: LiveData<Boolean>
+        get() = _isEnathAccuracy
 
     suspend fun isGooglePlayServicesAvailable(): Boolean = withContext(Dispatchers.Default) {
         when (googleApiAvailability.isGooglePlayServicesAvailable(application)) {
@@ -69,7 +71,6 @@ class WmRepositoryImpl @Inject constructor(
             else -> false
         }
     }
-
 
     fun checkInboxSms() {
         externalScope.launch(Dispatchers.IO) {
@@ -88,92 +89,42 @@ class WmRepositoryImpl @Inject constructor(
 
         val cursor = application.contentResolver.query(
             Uri.parse("content://sms/inbox"),//Telephony.Sms.CONTENT_URI,
-            projection/* arrayOf( "address", "date", "body" )*/,
+            projection,
             null, null, null
         )
-        /* if (cursor?.moveToFirst() == true) { // must check the result to prevent exception
-             do {
-                 var msgData = ""
-                 for (idx in 0 until cursor.columnCount) {
-                     msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx)
-                 }
-                 val number = cursor.getString(0)
-                 var text = cursor.getString(2)
-                 text = text.replace("\n", "")
-                 text = text.replace("\"", "'")
-                 val time = cursor.getLong(1)
-                 val checkId = externalScope.async(Dispatchers.IO) {
-                     val resId=checkCallSms(time, text, number)
-                     Log.e("resId22", "$resId")
-                     resId
-                 }
-                 externalScope.launch(Dispatchers.IO) {
-                     val resId = checkId.await() ?: -1
-                     Log.e("resId", "$resId")
-                     if (resId<0) {
-                         Log.e("msgData", "рвемя: $time; номер:$number; сообщение: $text")
-                           insertSmsCallData(number, text, 1, time)
-                     }
-                 }
-                 // use msgData
-             } while (cursor.moveToNext())
-         } else {
-             // empty box, no SMS
-         }*/
         val numberColIdx = cursor!!.getColumnIndex(numberCol)
         val textColIdx = cursor.getColumnIndex(textCol)
         val timeMesg = cursor.getColumnIndex(timeCol)
         val typeColIdx = cursor.getColumnIndex(typeCol)
-
-        val getSmsList = externalScope.async(Dispatchers.IO) {
-           locationDao.checSms()
-        }
-       // externalScope.launch(Dispatchers.IO) {
-
-         //   val resSmsList: MutableList<SmsCallDbModel> = ArrayList()
-         //   val smsList = getSmsList.await()
-            while (cursor.moveToNext()) {
-                val number = cursor.getString(numberColIdx)
-                var text = cursor.getString(textColIdx)
-                text = text.replace("\n", "")
-                val time = cursor.getLong(timeMesg)
-                val type = cursor.getString(typeColIdx)
-                val checkId = externalScope.async(Dispatchers.IO) {
-                    checkCallSms(time, text.substring(0,5), number)
-                  //  val s=smsList.find { item -> item.datetime.equals(time) && item.phoneNumber.equals(number)&& item.message?.startsWith(text.substring(0,5)) == true }
-                   // s?._id
-                }
-                externalScope.launch(Dispatchers.IO) {
-                    val resId = checkId.await() ?: -1
-                    if (resId < 0) {Log.e("resId", "$resId")
-                       // resSmsList.add()
-                       insertSmsCallData(number, text, 1, time)
-                    }
-                }
-                //  Log.e("readSms", "$time: $number $text $type")
+        while (cursor.moveToNext()) {
+            val number = cursor.getString(numberColIdx)
+            var text = cursor.getString(textColIdx)
+            text = text.replace("\n", "")
+            val time = cursor.getLong(timeMesg)
+            val type = cursor.getString(typeColIdx)
+            val checkId = externalScope.async(Dispatchers.IO) {
+                checkCallSms(time, text.substring(0, 5), number)
             }
-      //  }
-
+            externalScope.launch(Dispatchers.IO) {
+                val resId = checkId.await() ?: -1
+                if (resId < 0) {
+                    Log.e("resId", "$resId")
+                    insertSmsCallData(number, text, 1, time)
+                }
+            }
+        }
         cursor.close()
         sendCallSms4Net()
     }
 
-    private val _isEnathAccuracy = MutableLiveData<Boolean>()
-    val isEnathAccuracy: LiveData<Boolean>
-        get() = _isEnathAccuracy
-
-
     override suspend fun checkKod(request: RequestBody): ResponseJwtDomModel {
         val responc = apiService.chekcKod(request)
         val mBody = responc.body()?.let { mapperJwt.mapDtoToModel(it) }
-
         val res = ResponseJwtDomModel(
             mBody, responc.isSuccessful, responc.errorBody(), responc.code()
         )
-
         return res
     }
-
 
     override fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = application.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -181,10 +132,8 @@ class WmRepositoryImpl @Inject constructor(
             .any { it.service.className == serviceClass.name }
     }
 
-
     override fun isInternetConnected(): Boolean {
         val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val n = cm.activeNetwork
             if (n != null) {
@@ -202,35 +151,29 @@ class WmRepositoryImpl @Inject constructor(
 
     override fun getSettingsModel() = mapperSetTime.mapDataModelToDomain(
         Gson().fromJson(
-            worktime, SettingsDataModel::class.java
+            wmSettings.worktime, SettingsDataModel::class.java
         )
     )
 
     override fun setWorkingTime(dm: SettingsDomModel) {
-        worktime = Gson().toJson(mapperSetTime.mapDomainToDataModel(dm))
+        wmSettings.worktime = Gson().toJson(mapperSetTime.mapDomainToDataModel(dm))
     }
-
 
     override suspend fun getLocationById(mDate: String) =
         locationDao.getLocationsById(mDate).map {
-                mapper.mapDbModelToEntity(it)
-            }
-
-
+            mapper.mapDbModelToEntity(it)
+        }
 
     override suspend fun checkWmJwToken(request: RequestBody): ResponseDomModel {
         val responc = apiService.checkToken(request)
         val mBody = responc.body()?.let { mapperJwt.mapAllDtoToModel(it) }
-
         val res = ResponseDomModel(
             mBody, responc.isSuccessful, responc.errorBody(), responc.code()
         )
         return res
     }
 
-
     fun updateIsWrite(idList: List<Long>) = locationDao.updateQuery(idList)
-
 
     suspend fun getLocations4Net(): List<LocationDomModel> {
         val d = getWmUserInfoSetings().posId
@@ -242,7 +185,6 @@ class WmRepositoryImpl @Inject constructor(
         Log.e("getLocations4Net", "LocationDb={$res}")
         return res
     }
-
 
     suspend fun getCallSms4Net(): List<SmsCallDbModel> {
         val res = locationDao.getCallSms4Net()
@@ -263,7 +205,7 @@ class WmRepositoryImpl @Inject constructor(
                 phoneNumber
             ) else 1
         Log.e("checkCallSms", "checkCallSms={$res}")
-      //  Log.e("resId11", "{$res}")
+        //  Log.e("resId11", "{$res}")
         return res
     }
 
@@ -311,6 +253,43 @@ class WmRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun send2Server(list: MutableList<Long>, request: RequestBody) {
+        if (list.size > 0) {
+            try {
+                Log.e("Gson2", request.toString())
+                val response = writeCallSms4Net(request)
+                //  Log.e("responseCode", response.respCode.toString())
+                Log.e("response", response.toString())
+                if (response.respIsSuccess) {
+                    response.mBody?.let {
+                        if (!it.error && it.message.isNotEmpty()) {
+                            var mSize = list.size
+                            while (mSize > 0) {
+                                val ssize = if (mSize > 500) 500 else mSize
+                                val tempList = list.subList(0, ssize)
+                                val r = updateCallSmsIsWrite(tempList)
+                                if (r > 0) {
+                                    list.subList(0, ssize).clear()
+                                    mSize = list.size
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    try {
+                        val jObjError = response.respError?.string()?.let { JSONObject(it) }
+                        Log.e(
+                            "responseError",
+                            jObjError.toString()
+                        )
+                    } catch (e: Exception) {
+                        Log.e("responseError", e.message.toString())
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
+    }
 
     private fun sendCallSms4Net() {
         if (isInternetConnected()) {
@@ -329,46 +308,11 @@ class WmRepositoryImpl @Inject constructor(
             externalScope.launch(Dispatchers.IO) {
                 val sdsd = d.await()
                 //Log.e("idList", idList.size.toString())
-                if (idList.size > 0) {
-                    try {
-                        Log.e("Gson2", sdsd.toString())
-                        val response = writeCallSms4Net(sdsd)
-                        //  Log.e("responseCode", response.respCode.toString())
-                        Log.e("response", response.toString())
-                        if (response.respIsSuccess) {
-                            response.mBody?.let {
-                                if (!it.error && it.message.isNotEmpty()) {
-                                    var mSize = idList.size
-                                    while (mSize > 0) {
-                                        val ssize = if (mSize > 500) 500 else mSize
-                                        val tempList = idList.subList(0, ssize)
-                                        val r = updateCallSmsIsWrite(tempList)
-                                        if (r > 0) {
-                                            idList.subList(0, ssize).clear()
-                                            mSize = idList.size
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            try {
-                                val jObjError = response.respError?.string()?.let { JSONObject(it) }
-
-                                Log.e(
-                                    "responseError",
-                                    jObjError.toString()
-                                )
-                            } catch (e: Exception) {
-                                Log.e("responseError", e.message.toString())
-                            }
-                        }
-                    } catch (e: Exception) {
-                    }
-                }
-
+                send2Server(idList, sdsd)
             }
         }
     }
+
     suspend fun writeLoc4Net(request: RequestBody): ResponseDomModel {
         val responc = apiService.writeLocDatas(request)
         Log.e("writeLoc4Net", responc.toString())
@@ -395,41 +339,34 @@ class WmRepositoryImpl @Inject constructor(
             interval = 5000
             fastestInterval = 5000
         }
-
         fusedLocationProviderClient.requestLocationUpdates(
             request, callback, Looper.myLooper()!!
         )
         Log.e("getLocation00", fusedLocationProviderClient.toString())
     }
 
-
     private fun updateTimeEndDb(id: Int, time: Long) = locationDao.updateTime2ById(id, time)
 
-
     private fun updateValueDb(
-        id: Int, newInfo: String/*,
-                              lat: Double,
-                              lon: Double,
-                              acracy: Float*/
-    ) = locationDao.updateLocationById(id, newInfo/*,lat,lon,acracy*/)
-
+        id: Int, newInfo: String
+    ) = locationDao.updateLocationById(id, newInfo)
 
     fun updateLocationOnOff(id: Int, isOnOff: Int) {
         externalScope.launch(Dispatchers.IO) { locationDao.updateLocationOnOff(id, isOnOff) }
     }
 
+    fun updateIsOnOff(isOnOf: Int) {
+        wmSettings.isOnOff = isOnOf
+    }
 
     fun getLastValue1() = locationDao.getLastValu1e()
 
-
     private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
 
-
-    override fun getLastValue4Show():LiveData<LocationDomModel>?
-    =if (locationDao.getLastValue4Show()!=null) Transformations.map(locationDao.getLastValue4Show()!!){mapper.mapDbModelToEntity(it)}
-    else null
+    override fun getLastValue4Show(): LocationDomModel? = locationDao.getLastValue4Show()
 
     fun getLastValueFromDbOnOff() = locationDao.getLastValueOnOff()
+
     fun getDate(milliSeconds: Long): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss")
         val calendar: Calendar = Calendar.getInstance()
@@ -502,7 +439,7 @@ class WmRepositoryImpl @Inject constructor(
                 externalScope.launch(Dispatchers.IO) {
                     val lastDbValue = getLastValueFromDb()
                     var isInOff4Bd = IS_ON_OFF_DEFAULT_INT
-                    if (isOnOff == IS_ON_INT) isInOff4Bd = IS_ON_INT
+                    if (wmSettings.isOnOff == IS_ON_INT) isInOff4Bd = IS_ON_INT
                     result.lastLocation.let {
                         if (lastDbValue != null) {
                             val dist = gerDistance2Locations(lastDbValue, it)
@@ -521,25 +458,22 @@ class WmRepositoryImpl @Inject constructor(
                                     0,
                                     isInOff4Bd
                                 )
-                                isOnOff = IS_ON_OFF_DEFAULT_INT
+                                wmSettings.isOnOff = IS_ON_OFF_DEFAULT_INT
                                 isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 locationDao.insertLocation(res)
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)
                                 Log.e("insertLocation", res.toString())
                             } else {
-                                if (isOnOff == IS_ON_INT && lastDbValue.isOnOff == IS_OFF_INT) updateLocationOnOff(
+                                if (wmSettings.isOnOff == IS_ON_INT && lastDbValue.isOnOff == IS_OFF_INT) updateLocationOnOff(
                                     lastDbValue._id.toInt(), IS_ON_OFF_INT
                                 )
-                                isOnOff = IS_ON_OFF_DEFAULT_INT
+                                wmSettings.isOnOff = IS_ON_OFF_DEFAULT_INT
                                 isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 updateTimeEndDb(lastDbValue._id.toInt(), lTime)
                                 updateValueDb(
                                     lastDbValue._id.toInt(),
-                                    getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime)/*,
-                                    it.latitude,
-                                    it.longitude,
-                                    it.accuracy*/
+                                    getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime)
                                 )
                                 _isEnathAccuracy.postValue(true)
                                 onLocationChangedListener?.invoke(true)
@@ -558,7 +492,7 @@ class WmRepositoryImpl @Inject constructor(
                                 0,
                                 isInOff4Bd
                             )
-                            isOnOff = IS_ON_OFF_DEFAULT_INT
+                            wmSettings.isOnOff = IS_ON_OFF_DEFAULT_INT
                             isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                             locationDao.insertLocation(res)
                             _isEnathAccuracy.postValue(true)
@@ -567,7 +501,6 @@ class WmRepositoryImpl @Inject constructor(
                             Log.e("insertLocationNull", res.toString())
                         }
                     }
-
                 }
             }
         }
@@ -578,90 +511,20 @@ class WmRepositoryImpl @Inject constructor(
         fusedLocationProviderClient.removeLocationUpdates(callback)
     }
 
-
-    val defaultTime = Gson().toJson(
-        SettingsDataModel(
-            50, 100
-        )
-    )
-    val defaultUserInfo = Gson().toJson(
-        SettingsUserInfoDataModel(
-            EMPTY_STRING, 0, 0, EMPTY_STRING, EMPTY_STRING, false
-        )
-    )
-
     override fun getWmUserInfoSetings() = mapperUserInfoSettings.mapDataModelToDomain(
         Gson().fromJson(
-            jwToken, SettingsUserInfoDataModel::class.java
+            wmSettings.jwToken, SettingsUserInfoDataModel::class.java
         )
     )
 
-
     override fun setWmUserInfoSetings(dm: SettingsUserInfoDomModel) {
-        jwToken = Gson().toJson(mapperUserInfoSettings.mapDomainToDataModel(dm))
+        wmSettings.jwToken = Gson().toJson(mapperUserInfoSettings.mapDomainToDataModel(dm))
     }
 
-    var worktime: String?
-        get() {
-            val k: String?
-            if (mSettings.contains(APP_PREFERENCES_worktime)) {
-                k = mSettings.getString(
-                    APP_PREFERENCES_worktime, defaultTime
-                )
-            } else k = defaultTime
-            return k
-        }
-        @SuppressLint("NewApi") set(k) {
-            val editor = mSettings.edit()
-            editor.putString(APP_PREFERENCES_worktime, k)
-            if (Build.VERSION.SDK_INT > 9) {
-                editor.apply()
-            } else editor.commit()
-        }
-    var jwToken: String
-        get() {
-            val k: String
-            if (mSettings.contains(APP_PREFERENCES_jwt)) {
-                k = mSettings.getString(
-                    APP_PREFERENCES_jwt, defaultUserInfo
-                ).toString()
-            } else k = defaultUserInfo
-            return k
-        }
-        @SuppressLint("NewApi") set(k) {
-            val editor = mSettings.edit()
-            editor.putString(APP_PREFERENCES_jwt, k)
-            if (Build.VERSION.SDK_INT > 9) {
-                editor.apply()
-            } else editor.commit()
-        }
-    var isOnOff: Int
-        get() {
-            val k: Int
-            if (mSettings.contains(APP_PREFERENCES_isOnOff)) {
-                k = mSettings.getInt(
-                    APP_PREFERENCES_isOnOff, IS_ON_OFF_DEFAULT_INT
-                )
-            } else k = IS_ON_OFF_DEFAULT_INT
-            return k
-        }
-        @SuppressLint("NewApi") set(k) {
-            val editor = mSettings.edit()
-            editor.putInt(APP_PREFERENCES_isOnOff, k)
-            if (Build.VERSION.SDK_INT > 9) {
-                editor.apply()
-            } else editor.commit()
-        }
-
     private companion object {
-        const val APP_PREFERENCES_worktime = "worktime"
-        const val APP_PREFERENCES_jwt = "jwt"
-        const val APP_PREFERENCES_isOnOff = "isOnOff"
-        const val EMPTY_STRING = ""
         const val IS_ON_OFF_DEFAULT_INT = 0
         const val IS_ON_INT = 1
         const val IS_OFF_INT = 2
         const val IS_ON_OFF_INT = 3
     }
-
 }

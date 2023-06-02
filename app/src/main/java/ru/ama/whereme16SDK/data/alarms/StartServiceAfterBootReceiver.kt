@@ -30,8 +30,6 @@ class StartServiceAfterBootReceiver : BroadcastReceiver() {
         return false
     }
 
-
-
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(context: Context?, intent: Intent?) {
         val component = (context?.applicationContext as MyApp).component
@@ -40,17 +38,16 @@ class StartServiceAfterBootReceiver : BroadcastReceiver() {
         repo.externalScope.launch(Dispatchers.IO) {
             val dbModel = repo.getLastValueFromDbOnOff()
             repo.updateLocationOnOff(dbModel._id.toInt(), IS_OFF_INT)
-            repo.isOnOff = IS_ON_INT
+            repo.updateIsOnOff(IS_ON_INT)
             startService(context)
         }
-      //  repo.checkInboxSms()
     }
 
-
-    private fun startService(context:Context) {
+    private fun startService(context: Context) {
         Log.e("onReceiveAlarm", "doAlarm")
         try {
-            if (!isMyServiceRunning(context,
+            if (!isMyServiceRunning(
+                    context,
                     MyForegroundService::class.java
                 )
             ) {

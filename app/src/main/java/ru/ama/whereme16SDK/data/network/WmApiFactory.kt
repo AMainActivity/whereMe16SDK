@@ -8,7 +8,6 @@ import ru.ama.whereme16SDK.BuildConfig
 
 
 object WmApiFactory {
-
     private const val BASE_URL = BuildConfig.BASE_URL
     var gson = GsonBuilder()
         .setLenient()
@@ -17,6 +16,5 @@ object WmApiFactory {
         .addConverterFactory(GsonConverterFactory.create(gson))
         .baseUrl(BASE_URL)
         .build()
-
     val apiService = retrofit.create(WmApiService::class.java)
 }

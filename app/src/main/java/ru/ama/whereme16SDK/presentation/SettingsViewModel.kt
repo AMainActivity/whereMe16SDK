@@ -23,13 +23,12 @@ class SettingsViewModel @Inject constructor(
     val errorAccuracy: LiveData<Boolean>
         get() = _errorAccuracy
 
-
     fun getSettings(): SettingsDomModel {
         return getSettingsUseCase()
     }
 
     fun validateInputData(name: String, idData: SettingsViewNames): Boolean {
-        var result = true
+        val result = true
         when (idData) {
             SettingsViewNames.MIN_DISTANCE -> {
                 if (name.isNotEmpty()) {
@@ -40,10 +39,8 @@ class SettingsViewModel @Inject constructor(
                             )
                         )
                         _errorMinDistance.value = false
-                    } else
-                        _errorMinDistance.value = true
-                } else
-                    _errorMinDistance.value = true
+                    } else _errorMinDistance.value = true
+                } else _errorMinDistance.value = true
             }
             SettingsViewNames.ACCURACY -> {
                 if (name.isNotEmpty()) {
@@ -54,10 +51,8 @@ class SettingsViewModel @Inject constructor(
                             )
                         )
                         _errorAccuracy.value = false
-                    } else
-                        _errorAccuracy.value = true
-                } else
-                    _errorAccuracy.value = true
+                    } else _errorAccuracy.value = true
+                } else _errorAccuracy.value = true
             }
         }
         return result
@@ -71,19 +66,12 @@ class SettingsViewModel @Inject constructor(
 
     }
 
-   /* fun cancelAlarmService() {
-        cancelAlarmServiceUseCase()
-    }*/
-
     fun checkService(): Boolean {
         Log.e("fromSet", checkServiceUseCase(MyForegroundService::class.java).toString())
         return checkServiceUseCase(MyForegroundService::class.java)
     }
 
-
     private fun setSettings(dm: SettingsDomModel) {
         setSettingsUseCase(dm)
     }
-
-
 }

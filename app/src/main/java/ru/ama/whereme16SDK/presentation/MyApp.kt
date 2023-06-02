@@ -5,10 +5,7 @@ import android.content.Context
 import androidx.multidex.MultiDex
 import ru.ama.whereme16SDK.di.DaggerApplicationComponent
 
-
 class MyApp : Application() {
-
-
     val component by lazy {
         DaggerApplicationComponent.factory().create(this)
     }
@@ -22,6 +19,4 @@ class MyApp : Application() {
         component.inject(this)
         super.onCreate()
     }
-
-
 }

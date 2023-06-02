@@ -10,7 +10,6 @@ import ru.ama.whereme16SDK.domain.entity.LocationDomModel
 
 @Dao
 interface LocationDao {
-
     @Query("SELECT _id FROM tab_call_sms where datetime=:datetime and message like :message || '%' and phoneNumber=:phoneNumber ORDER BY _id desc limit 1")
     suspend fun checSmsExist(
         datetime: Long,
@@ -19,7 +18,7 @@ interface LocationDao {
     ): Int?
 
     @Query("SELECT * FROM tab_call_sms where sourceId=1 ORDER BY _id desc")
-    suspend fun checSms():  List<SmsCallDbModel>
+    suspend fun checSms(): List<SmsCallDbModel>
 
     @Query(
         "SELECT _id,datetime,message,phoneNumber,isWrite,sourceId FROM tab_call_sms where isWrite=0 ORDER BY _id asc "
@@ -50,10 +49,11 @@ interface LocationDao {
     fun getLastValue(mDate: String): LocationDbModel
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
-    fun getLastValue4Show(): LiveData<LocationDbModel>?
+    fun getLastValue4Show(): LocationDomModel?
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
     fun getLastValueOnOff(): LocationDbModel
+
     @Query(
         "SELECT _id,strftime('%d.%m.%Y %H:%M:%S', datestart / 1000, 'unixepoch', 'localtime') as datetime,datestart,dateend," +
                 "strftime('%d.%m.%Y %H:%M:%S', datestart / 1000, 'unixepoch') as info,latitude,longitude,sourceId,accuracy,velocity,isWrite,isOnOff FROM tab_locations ORDER BY _id desc limit 1 "
@@ -62,10 +62,7 @@ interface LocationDao {
 
     @Query("update tab_locations  set info =  :newInfo,isWrite =  0/*,latitude=:lat,longitude=:lon,accuracy=:acracy*/ where _id=:id")
     fun updateLocationById(
-        id: Int, newInfo: String/*,
-                           lat: Double,
-                           lon: Double,
-                           acracy: Float*/
+        id: Int, newInfo: String
     ): Int
 
     @Query("update tab_locations  set isOnOff =  :isOnOff,isWrite =  0 where _id=:id")
@@ -76,5 +73,4 @@ interface LocationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocation(mLoc: LocationDbModel)
-
 }

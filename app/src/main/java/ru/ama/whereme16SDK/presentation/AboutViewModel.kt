@@ -10,15 +10,9 @@ class AboutViewModel @Inject constructor(
     private val getJwTokenUseCase: GetJwTokenUseCase
 
 ) : ViewModel() {
-
     private var wmTokenInfoModel: SettingsUserInfoDomModel
-
     init {
-
         wmTokenInfoModel = getJwTokenUseCase()
     }
-
     fun getSetUserInfo() = wmTokenInfoModel
-
-
 }

@@ -32,7 +32,6 @@ class AboutFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         component.inject(this)
-
         super.onAttach(context)
     }
 
@@ -102,7 +101,11 @@ class AboutFragment : Fragment() {
                     false
                 )
                 else
-                    Toast.makeText(requireContext(), getString(R.string.no_data), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.no_data),
+                        Toast.LENGTH_SHORT
+                    ).show()
             }
             .show()
     }
@@ -110,7 +113,7 @@ class AboutFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentAboutBinding.inflate(inflater, container, false)
         return binding.root
@@ -119,7 +122,8 @@ class AboutFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = getString(R.string.about_app)
+        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle =
+            getString(R.string.about_app)
         viewModel = ViewModelProvider(this, viewModelFactory)[AboutViewModel::class.java]
 
         binding.frgmntAbTv.linksClickable = true

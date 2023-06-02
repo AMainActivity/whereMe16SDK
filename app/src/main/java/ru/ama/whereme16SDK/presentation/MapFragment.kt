@@ -24,7 +24,8 @@ import javax.inject.Inject
 class MapFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
-    private val binding get() = _binding ?: throw RuntimeException(getString(R.string.fragment_first_binding_null))
+    private val binding
+        get() = _binding ?: throw RuntimeException(getString(R.string.fragment_first_binding_null))
     private lateinit var viewModel: MapViewModel
     private val component by lazy {
         (requireActivity().application as MyApp).component
@@ -41,19 +42,16 @@ class MapFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       // setHasOptionsMenu(true)
+        // setHasOptionsMenu(true)
     }
 
 /*
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_map_fragment, menu)
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         return when (item.itemId) {
             R.id.menu_day_picker -> {
-
                 showPopupDatePicker(requireActivity().findViewById(R.id.menu_day_picker))
                 true
             }
@@ -101,7 +99,8 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = getString(R.string.first_fragment_label)
+        (requireActivity() as AppCompatActivity).supportActionBar?.subtitle =
+            getString(R.string.first_fragment_label)
         viewModel = ViewModelProvider(this, viewModelFactory)[MapViewModel::class.java]
         try {
             observeData(viewModel.getCurrentDate())
@@ -110,20 +109,19 @@ class MapFragment : Fragment() {
     }
 
 
-
     private fun observeData(abSuntitle: String) {
-        viewModel.resData?.observe(viewLifecycleOwner) {
+        viewModel.resList?.observe(viewLifecycleOwner) {
             (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = abSuntitle
             binding.frgmntMainTv.text =
                 HtmlCompat.fromHtml(viewModel.d(it), HtmlCompat.FROM_HTML_MODE_LEGACY)
-         //   binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
+            //   binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
             Log.e("getLocationlldByDay", it.toString())
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.resData?.removeObservers(viewLifecycleOwner)
+        viewModel.resList?.removeObservers(viewLifecycleOwner)
         _binding = null
     }
 }

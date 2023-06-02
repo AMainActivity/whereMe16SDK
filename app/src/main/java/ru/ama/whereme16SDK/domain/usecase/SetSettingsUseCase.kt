@@ -7,6 +7,5 @@ import javax.inject.Inject
 class SetSettingsUseCase @Inject constructor(
     private val repository: WmRepository
 ) {
-
     operator fun invoke(dm: SettingsDomModel) = repository.setWorkingTime(dm)
 }

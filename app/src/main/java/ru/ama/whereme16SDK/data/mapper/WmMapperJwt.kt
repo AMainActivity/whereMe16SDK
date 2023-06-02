@@ -6,9 +6,7 @@ import ru.ama.whereme16SDK.domain.entity.JsonDomModel
 import ru.ama.whereme16SDK.domain.entity.JsonJwtDomModel
 import javax.inject.Inject
 
-
 class WmMapperJwt @Inject constructor() {
-
     fun mapDtoToModel(dto: JsonJwtDto) = JsonJwtDomModel(
         error = dto.error,
         message = dto.message,
@@ -24,5 +22,4 @@ class WmMapperJwt @Inject constructor() {
         error = dto.error,
         message = dto.message
     )
-
 }

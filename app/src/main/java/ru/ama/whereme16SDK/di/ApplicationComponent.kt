@@ -31,7 +31,6 @@ interface ApplicationComponent {
     fun inject(myForegroundService: MyForegroundService)
     fun inject(application: MyApp)
 
-
     @Component.Factory
     interface Factory {
 

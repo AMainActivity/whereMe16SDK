@@ -7,10 +7,10 @@
     tools:context=".presentation.MainActivity">
 
     <ScrollView
+        android:id="@+id/frgmnt_map_sv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:id="@+id/frgmnt_map_sv"
         android:background="@android:color/transparent"
         android:scrollbars="none">
 

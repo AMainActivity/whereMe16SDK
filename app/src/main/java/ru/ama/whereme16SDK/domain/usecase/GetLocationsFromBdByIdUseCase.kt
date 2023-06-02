@@ -6,6 +6,5 @@ import javax.inject.Inject
 class GetLocationsFromBdByIdUseCase @Inject constructor(
     private val repository: WmRepository
 ) {
-
     operator fun invoke() = repository.getLastValue4Show()
 }

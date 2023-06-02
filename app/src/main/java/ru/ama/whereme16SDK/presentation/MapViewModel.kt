@@ -21,48 +21,44 @@ class MapViewModel @Inject constructor(
     private val app: Application
 ) : ViewModel() {
 
-   // var lldByDay: LiveData<List<LocationDomModel>>? = null
-   var resData: LiveData<LocationDomModel>? = null
-   /* private val _resList = MutableLiveData<LocationDomModel>()
-    val resList: LiveData<LocationDomModel>?
-        get() = _resList*/
+    // var lldByDay: LiveData<List<LocationDomModel>>? = null
+   // var resData: LiveData<LocationDomModel>? = null
+    private val _resList = MutableLiveData<LocationDomModel>()
+     val resList: LiveData<LocationDomModel>?
+         get() = _resList
 
     init {
         getDataByDate(getCurrentDate())
     }
-
 
     fun getCurrentDate(): String {
         val formatter = SimpleDateFormat("dd.MM.yyyy")
         return formatter.format(Date())
     }
 
-
     fun d(s: LocationDomModel?): String {
         var mRes = app.getString(R.string.no_data)
-        if (s!=null) {
+        if (s != null) {
             var mTempRes = ""
             var count = 0
-                mTempRes += String.format(
-                    app.getString(R.string.logs_format),
-                    ++count,
-                    s.datestart,
-                    s.latitude,
-                    s.longitude,
-                    s.accuracy,
-                    s.info,
-                    s.velocity
-                )
+            mTempRes += String.format(
+                app.getString(R.string.logs_format),
+                ++count,
+                s.datestart,
+                s.latitude,
+                s.longitude,
+                s.accuracy,
+                s.info,
+                s.velocity
+            )
             mRes = mTempRes
         }
         return mRes
     }
 
     fun getDataByDate(mDate: String) {
-        val ss=viewModelScope.launch(Dispatchers.IO)  {
-            resData=getLocationsFromBdByIdUseCase()
+        viewModelScope.launch(Dispatchers.IO) {
+            _resList.postValue(getLocationsFromBdByIdUseCase())
         }
-
     }
-
 }

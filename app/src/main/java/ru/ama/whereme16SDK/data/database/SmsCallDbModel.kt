@@ -11,7 +11,7 @@ data class SmsCallDbModel(
     val message: String? = null,
     val phoneNumber: String? = null,
     val isWrite: Int,
-	// 1 - sms, 2 - call
+    // 1 - sms, 2 - call
     val sourceId: Int
 ) {
     @PrimaryKey(autoGenerate = true)

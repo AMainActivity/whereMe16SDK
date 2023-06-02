@@ -29,9 +29,7 @@ import java.util.*
 import javax.inject.Inject
 
 class MyForegroundService : LifecycleService() {
-
     private var timer: CountDownTimer? = null
-
     private lateinit var workingTimeModel: SettingsDomModel
     private var isEnath = false
     private val component by lazy {
@@ -50,7 +48,6 @@ class MyForegroundService : LifecycleService() {
     }
 
     inner class LocalBinder : Binder() {
-
         fun getService() = this@MyForegroundService
     }
 
@@ -65,12 +62,9 @@ class MyForegroundService : LifecycleService() {
             repo.isGooglePlayServicesAvailable()
         }
         lifecycleScope.launch(Dispatchers.Main) {
-            ////   startTimer()
             if (isGooglePlayServicesAvailab.await()) {
                 repo.startLocationUpdates()
-                // log(repo.isEnathAccuracy.value.toString() + "")
-            } //else
-            // Log.e("SERVICE_TAG3", "isGooglePlayServicesAvailable false")
+            }
         }
     }
 
@@ -90,7 +84,6 @@ class MyForegroundService : LifecycleService() {
     }
 
     private fun getFormattedLeftTime(millisUntilFinished: Long): String {
-
         val seconds = (millisUntilFinished / MILLIS_IN_SECONDS % SECONDS_IN_MINUTE).toInt()
         val minutes = millisUntilFinished / MILLIS_IN_SECONDS / SECONDS_IN_MINUTE
         return String.format(FORMATTED_STRING_MINUTE_SECOND, minutes, seconds)
@@ -118,8 +111,6 @@ class MyForegroundService : LifecycleService() {
             }
 
             override fun onFinish() {
-                //  перемнесено в ондестрой
-                //  repo.stopLocationUpdates()
                 cancel()
                 if (repo.mBestLoc.longitude != 0.0) lifecycleScope.launch(Dispatchers.IO) {
                     repo.saveLocation(repo.mBestLoc, repo.mBestLoc.time)
@@ -140,34 +131,19 @@ class MyForegroundService : LifecycleService() {
             val idList: MutableList<Long> = ArrayList()
             val d = lifecycleScope.async(Dispatchers.IO) {
                 val res = repo.getLocations4Net()
-                // Log.e("res", res.toString())
                 for (i in res.indices) {
                     idList.add(res[i]._id)
                 }
                 val json1 = Gson().toJson(DatasToJson(repo.getWmUserInfoSetings().tokenJwt, res))
-                // Log.e("Gson", json1.toString())
-                /*Log.e(
-                    "Gson2",
-                    "SettingsUserInfoDomModel(tokenJwt='${repo.getWmUserInfoSetings().tokenJwt}', " +
-                            "posId=${repo.getWmUserInfoSetings().posId}, " +
-                            "famId=${repo.getWmUserInfoSetings().famId}, " +
-                            "name=${repo.getWmUserInfoSetings().name}, " +
-                            "url=${repo.getWmUserInfoSetings().url}, " +
-                            "isActivate=${repo.getWmUserInfoSetings().isActivate})"
-                )*/
                 RequestBody.create(
                     MediaType.parse("application/json"), json1.toString()
                 )
             }
             lifecycleScope.launch(Dispatchers.IO) {
                 val sdsd = d.await()
-                //Log.e("idList", idList.size.toString())
                 if (idList.size > 0) {
                     try {
-
-                        Log.e("Gson2", sdsd.toString())
                         val response = repo.writeLoc4Net(sdsd)
-                        //  Log.e("responseCode", response.respCode.toString())
                         Log.e("response", response.toString())
                         if (response.respIsSuccess) {
                             response.mBody?.let {
@@ -188,13 +164,8 @@ class MyForegroundService : LifecycleService() {
                         } else {
                             try {
                                 val jObjError = response.respError?.string()?.let { JSONObject(it) }
-
-                                /* Log.e(
-                                     "responseError",
-                                     jObjError.toString()
-                                 )*/
                             } catch (e: Exception) {
-                                //Log.e("responseError", e.message.toString())
+                                Log.e("responseError", e.message.toString())
                             }
                             reRunGetLocations()
                         }
@@ -202,18 +173,15 @@ class MyForegroundService : LifecycleService() {
                         reRunGetLocations()
                     }
                 } else reRunGetLocations()
-
             }
         } else reRunGetLocations()
     }
 
     private fun reRunGetLocations() {
         timer?.start()
-        ////   repo.runAlarm(workingTimeModel.timeOfWorkingWM.toLong())
     }
 
     private fun updateNotify(title: String, txtBody: String) {
-        //// timer?.cancel()
         val notification = notificationBuilder.setContentTitle(title).setContentText(txtBody)
             .setProgress(0, 0, false).build()
         notificationManager.notify(NOTIFICATION_ID, notification)
@@ -222,22 +190,15 @@ class MyForegroundService : LifecycleService() {
     override fun onCreate() {
         component.inject(this)
         super.onCreate()
-        // log("onCreate")
         createNotificationChannel()
-        // Log.e("getCurrentDateMil", repo.getCurrentDateMil())
-        //  Log.e("getCurrentDate", repo.getCurrentDate())
         startForeground(NOTIFICATION_ID, notificationBuilder.build())
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        //  log("onStartCommand")
         startTimer()
-      //  repo.checkInboxSms()
         repo.onLocationChangedListener = {
-            //   Log.e("onLocationListener", "$it / $isEnath")
             if (it) {
-                ///в ондестрой repo.stopLocationUpdates()
                 timer?.cancel()
                 sendData4Net()
                 updateNotify(
@@ -257,12 +218,7 @@ class MyForegroundService : LifecycleService() {
         repo.stopLocationUpdates()
         timer?.cancel()
         lifecycleScope.cancel()
-        //  log("onDestroy")
     }
-
-    /*private fun log(message: String) {
-        Log.e("SERVICE_TAG", "MyForegroundService: $message")
-    }*/
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -274,7 +230,6 @@ class MyForegroundService : LifecycleService() {
     }
 
     companion object {
-
         private const val CHANNEL_ID = "channel_id"
         private const val CHANNEL_NAME = "channel_name"
         private const val NOTIFICATION_ID = 1

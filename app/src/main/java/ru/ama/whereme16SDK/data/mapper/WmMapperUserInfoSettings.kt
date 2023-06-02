@@ -6,7 +6,6 @@ import javax.inject.Inject
 
 class WmMapperUserInfoSettings @Inject constructor() {
 
-
     fun mapDataModelToDomain(dataModel: SettingsUserInfoDataModel) = SettingsUserInfoDomModel(
         tokenJwt = dataModel.tokenJwt,
         posId = dataModel.posId,
