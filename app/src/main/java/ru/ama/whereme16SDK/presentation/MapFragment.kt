@@ -115,7 +115,7 @@ class MapFragment : Fragment() {
             binding.frgmntMainTv.text =
                 HtmlCompat.fromHtml(viewModel.d(it), HtmlCompat.FROM_HTML_MODE_LEGACY)
             //   binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
-            Log.e("getLocationlldByDay", it.toString())
+           //Log.e("getLocationlldByDay", it.toString())
         }
     }
 

@@ -49,7 +49,7 @@ interface LocationDao {
     fun getLastValue(mDate: String): LocationDbModel
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
-    fun getLastValue4Show(): LocationDomModel?
+    fun getLastValue4Show(): LocationDbModel?
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
     fun getLastValueOnOff(): LocationDbModel

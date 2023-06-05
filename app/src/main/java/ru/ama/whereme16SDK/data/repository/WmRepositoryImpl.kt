@@ -363,7 +363,11 @@ class WmRepositoryImpl @Inject constructor(
 
     private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
 
-    override fun getLastValue4Show(): LocationDomModel? = locationDao.getLastValue4Show()
+    override fun getLastValue4Show(): LocationDomModel? {
+        val sdf = locationDao.getLastValue4Show()
+        Log.e("getLastValue4Show","${sdf==null}")
+        return if (sdf!=null) mapper.mapDbModelToEntity(sdf) else null
+    }
 
     fun getLastValueFromDbOnOff() = locationDao.getLastValueOnOff()
 
