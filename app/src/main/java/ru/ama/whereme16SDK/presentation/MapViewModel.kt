@@ -22,13 +22,13 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
 
     // var lldByDay: LiveData<List<LocationDomModel>>? = null
-  //  var resData: LiveData<LocationDomModel>? = null
-    private val _resList = MutableLiveData<LocationDomModel>()
+    var resData: LiveData<LocationDomModel>? = null
+   /* private val _resList = MutableLiveData<LocationDomModel>()
      val resList: LiveData<LocationDomModel>?
-         get() = _resList
+         get() = _resList*/
 
     init {
-        getDataByDate()
+       getDataByDate()
     }
 
     fun getCurrentDate(): String {
@@ -57,8 +57,10 @@ class MapViewModel @Inject constructor(
     }
 
     fun getDataByDate() {
-        viewModelScope.launch(Dispatchers.IO) {
-        _resList.postValue(getLocationsFromBdByIdUseCase())
+       // val r = viewModelScope.async(Dispatchers.IO) { getLocationsFromBdByIdUseCase() }
+        viewModelScope.launch {
+           // val ss=r.await()
+            resData=getLocationsFromBdByIdUseCase()
         }
     }
 }

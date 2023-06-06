@@ -8,7 +8,7 @@ import ru.ama.whereme16SDK.domain.entity.*
 interface WmRepository {
     suspend fun getLocationById(mDate: String): List<LocationDomModel>
     fun isInternetConnected(): Boolean
-    fun getLastValue4Show(): LocationDomModel?
+    fun getLastValue4Show(): LiveData<LocationDomModel>?
     fun isMyServiceRunning(serviceClass: Class<*>): Boolean
     fun getSettingsModel(): SettingsDomModel
     fun setWorkingTime(dm: SettingsDomModel)
