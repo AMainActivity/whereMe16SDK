@@ -24,6 +24,7 @@ import org.json.JSONObject
 import ru.ama.whereme16SDK.R
 import ru.ama.whereme16SDK.data.repository.WmRepositoryImpl
 import ru.ama.whereme16SDK.domain.entity.DatasToJson
+import ru.ama.whereme16SDK.domain.entity.LocationDomModel
 import ru.ama.whereme16SDK.domain.entity.SettingsDomModel
 import java.util.*
 import javax.inject.Inject
@@ -198,7 +199,7 @@ class MyForegroundService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         startTimer()
         repo.onLocationChangedListener = {
-            if (it) {
+            if (it!=null) {
                 timer?.cancel()
                 sendData4Net()
                 updateNotify(
@@ -207,11 +208,16 @@ class MyForegroundService : LifecycleService() {
                     )
                 )
                 isEnath = true
+                lifecycleScope.launch {
+                    onStartGetLovation?.invoke(it)
+                }
             }
         }
         startGetLocations()
         return START_STICKY
     }
+
+    var onStartGetLovation: ((LocationDomModel) -> Unit)? = null
 
     override fun onDestroy() {
         super.onDestroy()

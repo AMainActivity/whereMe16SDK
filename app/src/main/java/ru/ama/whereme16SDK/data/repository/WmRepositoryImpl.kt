@@ -59,7 +59,7 @@ class WmRepositoryImpl @Inject constructor(
 
     private lateinit var workingTimeModel: SettingsDomModel
     var mBestLoc = Location("bestLocationOfBadAccuracy")
-    var onLocationChangedListener: ((Boolean) -> Unit)? = null
+    var onLocationChangedListener: ((LocationDomModel?) -> Unit)? = null
     private val callback = Callback()
     private val _isEnathAccuracy = MutableLiveData<Boolean>()
     val isEnathAccuracy: LiveData<Boolean>
@@ -333,7 +333,7 @@ class WmRepositoryImpl @Inject constructor(
         mBestLoc.speed = 0f
         mBestLoc.time = 0
         _isEnathAccuracy.value = false
-        onLocationChangedListener?.invoke(false)
+        onLocationChangedListener?.invoke(null)
         val request = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             interval = 5000
@@ -363,13 +363,8 @@ class WmRepositoryImpl @Inject constructor(
 
     private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
 
-    override fun getLastValue4Show(): LiveData<LocationDomModel>?{
-
+    override fun getLastValue4Show(): LiveData<LocationDomModel>{
         val sdf = locationDao.getLastValue4Show()
-        Log.e("getLastValue4Show","${sdf==null}")
-        Log.e("getLastValue4Show2","${sdf?.value==null}")
-        if (sdf?.value==null)
-            return null else
         return  Transformations.map(sdf){mapper.mapDbModelToEntity(it)}
     }
 
@@ -418,7 +413,7 @@ class WmRepositoryImpl @Inject constructor(
         )
         locationDao.insertLocation(res)
         _isEnathAccuracy.postValue(true)
-        onLocationChangedListener?.invoke(true)
+        onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(res))
     }
 
     private fun gerDistance2Locations(loc1: LocationDbModel, loc2: Location): Float {
@@ -470,7 +465,7 @@ class WmRepositoryImpl @Inject constructor(
                                 isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 locationDao.insertLocation(res)
                                 _isEnathAccuracy.postValue(true)
-                                onLocationChangedListener?.invoke(true)
+                                onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(res))
                                 Log.e("insertLocation", res.toString())
                             } else {
                                 if (wmSettings.isOnOff == IS_ON_INT && lastDbValue.isOnOff == IS_OFF_INT) updateLocationOnOff(
@@ -484,7 +479,7 @@ class WmRepositoryImpl @Inject constructor(
                                     getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime)
                                 )
                                 _isEnathAccuracy.postValue(true)
-                                onLocationChangedListener?.invoke(true)
+                                onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(lastDbValue.copy(info=getDate(lastDbValue.datetime.toLong())+ " - " + getDate(lTime))))
                             }
                         } else {
                             val res = LocationDbModel(
@@ -504,7 +499,7 @@ class WmRepositoryImpl @Inject constructor(
                             isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                             locationDao.insertLocation(res)
                             _isEnathAccuracy.postValue(true)
-                            onLocationChangedListener?.invoke(true)
+                            onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(res))
 
                             Log.e("insertLocationNull", res.toString())
                         }

@@ -1,23 +1,20 @@
 package ru.ama.whereme16SDK.presentation
 
-import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
-import android.os.Build
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
-import android.view.*
-import android.widget.PopupWindow
-import android.widget.ScrollView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import ru.ama.whereme16SDK.R
-import ru.ama.whereme16SDK.databinding.DatePickerDaysBinding
 import ru.ama.whereme16SDK.databinding.FragmentFirstBinding
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 
@@ -45,6 +42,13 @@ class MapFragment : Fragment() {
         // setHasOptionsMenu(true)
     }
 
+    override fun onStart() {
+        super.onStart()
+    }
+
+    override fun onPause() {
+        super.onPause()
+    }
 /*
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_map_fragment, menu)
@@ -99,13 +103,14 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requireContext().bindService(
+            MyForegroundService.newIntent(requireContext()),
+            serviceConnection,
+            0
+        )
         (requireActivity() as AppCompatActivity).supportActionBar?.subtitle =
             getString(R.string.first_fragment_label)
         viewModel = ViewModelProvider(this, viewModelFactory)[MapViewModel::class.java]
-        try {
-            observeData(viewModel.getCurrentDate())
-        } catch (_: Exception) {
-        }
     }
 
 
@@ -116,13 +121,36 @@ class MapFragment : Fragment() {
             binding.frgmntMainTv.text =
                 HtmlCompat.fromHtml(viewModel.d(it), HtmlCompat.FROM_HTML_MODE_LEGACY)
             //   binding.frgmntMapSv.post { binding.frgmntMapSv.fullScroll(ScrollView.FOCUS_DOWN) }
-           Log.e("getLocationlldByDay", it.toString())
+            Log.e("getLocationlldByDay", it.toString())
         }
+    }
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = (service as? MyForegroundService.LocalBinder) ?: return
+            val foregroundService = binder.getService()
+            foregroundService.onStartGetLovation = {locDom->
+                binding.let {
+                    binding.frgmntMainTv.text =
+                        HtmlCompat.fromHtml(viewModel.d(locDom), HtmlCompat.FROM_HTML_MODE_LEGACY)
+                }
+                // observeData(viewModel.getCurrentDate())
+            }
+            Log.e("serviceConnection", "onServiceConnected")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.resData?.removeObservers(viewLifecycleOwner)
+        requireContext().unbindService(serviceConnection)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.resData?.removeObservers(viewLifecycleOwner)
         _binding = null
     }
 }
