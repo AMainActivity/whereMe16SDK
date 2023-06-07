@@ -59,7 +59,7 @@ class WmRepositoryImpl @Inject constructor(
 
     private lateinit var workingTimeModel: SettingsDomModel
     var mBestLoc = Location("bestLocationOfBadAccuracy")
-    var onLocationChangedListener: ((LocationDomModel?) -> Unit)? = null
+    var onLocationChangedListener: ((Boolean) -> Unit)? = null
     private val callback = Callback()
     private val _isEnathAccuracy = MutableLiveData<Boolean>()
     val isEnathAccuracy: LiveData<Boolean>
@@ -160,8 +160,10 @@ class WmRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getLocationById(mDate: String) =
-        locationDao.getLocationsById(mDate).map {
-            mapper.mapDbModelToEntity(it)
+        Transformations.map(locationDao.getLocationsById(mDate)) {
+            it.map {
+                mapper.mapDbModelToEntity(it)
+            }
         }
 
     override suspend fun checkWmJwToken(request: RequestBody): ResponseDomModel {
@@ -333,7 +335,7 @@ class WmRepositoryImpl @Inject constructor(
         mBestLoc.speed = 0f
         mBestLoc.time = 0
         _isEnathAccuracy.value = false
-        onLocationChangedListener?.invoke(null)
+        onLocationChangedListener?.invoke(false)
         val request = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             interval = 5000
@@ -363,10 +365,12 @@ class WmRepositoryImpl @Inject constructor(
 
     private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
 
-    override fun getLastValue4Show(): LiveData<LocationDomModel>{
-        val sdf = locationDao.getLastValue4Show()
-        return  Transformations.map(sdf){mapper.mapDbModelToEntity(it)}
-    }
+    override fun getLastValue4Show()=
+        Transformations.map(locationDao.getLastValue4Show()) {
+            it.map {
+                mapper.mapDbModelToEntity(it)
+            }
+        }
 
     fun getLastValueFromDbOnOff() = locationDao.getLastValueOnOff()
 
@@ -413,7 +417,7 @@ class WmRepositoryImpl @Inject constructor(
         )
         locationDao.insertLocation(res)
         _isEnathAccuracy.postValue(true)
-        onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(res))
+        onLocationChangedListener?.invoke(true)
     }
 
     private fun gerDistance2Locations(loc1: LocationDbModel, loc2: Location): Float {
@@ -465,7 +469,7 @@ class WmRepositoryImpl @Inject constructor(
                                 isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                                 locationDao.insertLocation(res)
                                 _isEnathAccuracy.postValue(true)
-                                onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(res))
+                                onLocationChangedListener?.invoke(true)
                                 Log.e("insertLocation", res.toString())
                             } else {
                                 if (wmSettings.isOnOff == IS_ON_INT && lastDbValue.isOnOff == IS_OFF_INT) updateLocationOnOff(
@@ -479,7 +483,7 @@ class WmRepositoryImpl @Inject constructor(
                                     getDate(lastDbValue.datetime.toLong()) + " - " + getDate(lTime)
                                 )
                                 _isEnathAccuracy.postValue(true)
-                                onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(lastDbValue.copy(info=getDate(lastDbValue.datetime.toLong())+ " - " + getDate(lTime))))
+                                onLocationChangedListener?.invoke(true)
                             }
                         } else {
                             val res = LocationDbModel(
@@ -499,7 +503,7 @@ class WmRepositoryImpl @Inject constructor(
                             isInOff4Bd = IS_ON_OFF_DEFAULT_INT
                             locationDao.insertLocation(res)
                             _isEnathAccuracy.postValue(true)
-                            onLocationChangedListener?.invoke(mapper.mapDbModelToEntity(res))
+                            onLocationChangedListener?.invoke(true)
 
                             Log.e("insertLocationNull", res.toString())
                         }

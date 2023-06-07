@@ -42,14 +42,14 @@ interface LocationDao {
     @Query("update tab_locations  set isWrite =  1  where _id in (:idList)")
     fun updateQuery(idList: List<Long>): Int
 
-    @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate  ORDER BY _id asc ")
-    fun getLocationsById(mDate: String): List<LocationDbModel>
+    @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate  ORDER BY _id asc limit 5")
+    fun getLocationsById(mDate: String): LiveData<List<LocationDbModel>>
 
     @Query("SELECT * FROM tab_locations where strftime('%d.%m.%Y', datestart / 1000, 'unixepoch', 'localtime') =:mDate ORDER BY _id desc limit 1 ")
     fun getLastValue(mDate: String): LocationDbModel
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
-    fun getLastValue4Show(): LiveData<LocationDbModel>
+    fun getLastValue4Show(): LiveData<List<LocationDbModel>>
 
     @Query("SELECT * FROM tab_locations ORDER BY _id desc limit 1 ")
     fun getLastValueOnOff(): LocationDbModel

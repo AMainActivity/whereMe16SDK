@@ -199,7 +199,7 @@ class MyForegroundService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         startTimer()
         repo.onLocationChangedListener = {
-            if (it!=null) {
+            if (it) {
                 timer?.cancel()
                 sendData4Net()
                 updateNotify(
@@ -208,9 +208,6 @@ class MyForegroundService : LifecycleService() {
                     )
                 )
                 isEnath = true
-                lifecycleScope.launch {
-                    onStartGetLovation?.invoke(it)
-                }
             }
         }
         startGetLocations()

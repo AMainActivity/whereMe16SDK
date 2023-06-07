@@ -21,14 +21,14 @@ class MapViewModel @Inject constructor(
     private val app: Application
 ) : ViewModel() {
 
-    // var lldByDay: LiveData<List<LocationDomModel>>? = null
-    var resData: LiveData<LocationDomModel>? = null
+     var lldByDay: LiveData<List<LocationDomModel>>? = null
+   // var resData: LiveData<LocationDomModel>? = null
    /* private val _resList = MutableLiveData<LocationDomModel>()
      val resList: LiveData<LocationDomModel>?
          get() = _resList*/
 
     init {
-       getDataByDate()
+       getDataByDate(getCurrentDate())
     }
 
     fun getCurrentDate(): String {
@@ -36,31 +36,31 @@ class MapViewModel @Inject constructor(
         return formatter.format(Date())
     }
 
-    fun d(s: LocationDomModel?): String {
+    fun d(s: List<LocationDomModel>): String {
         var mRes = app.getString(R.string.no_data)
-        if (s != null) {
+        if (s.isNotEmpty()) {
             var mTempRes = ""
             var count = 0
-            mTempRes += String.format(
-                app.getString(R.string.logs_format),
-                ++count,
-                s.datestart,
-                s.latitude,
-                s.longitude,
-                s.accuracy,
-                s.info,
-                s.velocity
-            )
+            for (mDat in s) {
+                mTempRes += String.format(
+                    app.getString(R.string.logs_format),
+                    ++count,
+                    mDat.datestart,
+                    mDat.latitude,
+                    mDat.longitude,
+                    mDat.accuracy,
+                    mDat.info,
+                    mDat.velocity
+                )
+            }
             mRes = mTempRes
         }
         return mRes
     }
 
-    fun getDataByDate() {
-       // val r = viewModelScope.async(Dispatchers.IO) { getLocationsFromBdByIdUseCase() }
+    fun getDataByDate(mDate: String) {
         viewModelScope.launch {
-           // val ss=r.await()
-            resData=getLocationsFromBdByIdUseCase()
+            lldByDay = getLocationsFromBdByIdUseCase(mDate)
         }
     }
 }

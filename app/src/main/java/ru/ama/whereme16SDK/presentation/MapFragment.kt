@@ -1,20 +1,25 @@
 package ru.ama.whereme16SDK.presentation
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.ServiceConnection
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.PopupWindow
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import ru.ama.whereme16SDK.R
+import ru.ama.whereme16SDK.databinding.DatePickerDaysBinding
 import ru.ama.whereme16SDK.databinding.FragmentFirstBinding
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 
@@ -39,7 +44,7 @@ class MapFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // setHasOptionsMenu(true)
+         setHasOptionsMenu(true)
     }
 
     override fun onStart() {
@@ -49,7 +54,7 @@ class MapFragment : Fragment() {
     override fun onPause() {
         super.onPause()
     }
-/*
+
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_map_fragment, menu)
     }
@@ -84,13 +89,14 @@ class MapFragment : Fragment() {
                 calendar.set(year, monthOfYear, dayOfMonth)
                 val s = formatter.format(calendar.getTime())
                 viewModel.getDataByDate(s)
+                viewModel.lldByDay?.removeObservers(viewLifecycleOwner)
                 observeData(s)
                 popupWindow.dismiss()
             }
         }
         popupWindow.contentView = binding2.root
         popupWindow.showAsDropDown(anchor)
-    }*/
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -103,20 +109,15 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireContext().bindService(
-            MyForegroundService.newIntent(requireContext()),
-            serviceConnection,
-            0
-        )
         (requireActivity() as AppCompatActivity).supportActionBar?.subtitle =
             getString(R.string.first_fragment_label)
         viewModel = ViewModelProvider(this, viewModelFactory)[MapViewModel::class.java]
+        observeData(viewModel.getCurrentDate())
     }
 
 
     private fun observeData(abSuntitle: String) {
-        //viewModel.getDataByDate()
-        viewModel.resData?.observe(viewLifecycleOwner) {
+        viewModel.lldByDay?.observe(viewLifecycleOwner) {
             (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = abSuntitle
             binding.frgmntMainTv.text =
                 HtmlCompat.fromHtml(viewModel.d(it), HtmlCompat.FROM_HTML_MODE_LEGACY)
@@ -125,32 +126,10 @@ class MapFragment : Fragment() {
         }
     }
 
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = (service as? MyForegroundService.LocalBinder) ?: return
-            val foregroundService = binder.getService()
-            foregroundService.onStartGetLovation = {locDom->
-                binding.let {
-                    binding.frgmntMainTv.text =
-                        HtmlCompat.fromHtml(viewModel.d(locDom), HtmlCompat.FROM_HTML_MODE_LEGACY)
-                }
-                // observeData(viewModel.getCurrentDate())
-            }
-            Log.e("serviceConnection", "onServiceConnected")
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        viewModel.resData?.removeObservers(viewLifecycleOwner)
-        requireContext().unbindService(serviceConnection)
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        viewModel.lldByDay?.removeObservers(viewLifecycleOwner)
     }
 }
