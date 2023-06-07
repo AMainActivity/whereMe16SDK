@@ -365,12 +365,12 @@ class WmRepositoryImpl @Inject constructor(
 
     private fun getLastValueFromDb() = locationDao.getLastValue(getCurrentDate())
 
-    override fun getLastValue4Show()=
+    /*override fun getLastValue4Show()=
         Transformations.map(locationDao.getLastValue4Show()) {
             it.map {
                 mapper.mapDbModelToEntity(it)
             }
-        }
+        }*/
 
     fun getLastValueFromDbOnOff() = locationDao.getLastValueOnOff()
 

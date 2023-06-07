@@ -88,8 +88,6 @@ class MapFragment : Fragment() {
                 val calendar: Calendar = Calendar.getInstance()
                 calendar.set(year, monthOfYear, dayOfMonth)
                 val s = formatter.format(calendar.getTime())
-                viewModel.getDataByDate(s)
-                viewModel.lldByDay?.removeObservers(viewLifecycleOwner)
                 observeData(s)
                 popupWindow.dismiss()
             }
@@ -117,6 +115,8 @@ class MapFragment : Fragment() {
 
 
     private fun observeData(abSuntitle: String) {
+        viewModel.lldByDay?.removeObservers(viewLifecycleOwner)
+        viewModel.getDataByDate(abSuntitle)
         viewModel.lldByDay?.observe(viewLifecycleOwner) {
             (requireActivity() as AppCompatActivity).supportActionBar?.subtitle = abSuntitle
             binding.frgmntMainTv.text =
