@@ -21,14 +21,10 @@ class MapViewModel @Inject constructor(
     private val app: Application
 ) : ViewModel() {
 
-     var lldByDay: LiveData<List<LocationDomModel>>? = null
-   // var resData: LiveData<LocationDomModel>? = null
-   /* private val _resList = MutableLiveData<LocationDomModel>()
-     val resList: LiveData<LocationDomModel>?
-         get() = _resList*/
+    var lldByDay: LiveData<List<LocationDomModel>>? = null
 
     init {
-       getDataByDate(getCurrentDate())
+        getDataByDate(getCurrentDate())
     }
 
     fun getCurrentDate(): String {

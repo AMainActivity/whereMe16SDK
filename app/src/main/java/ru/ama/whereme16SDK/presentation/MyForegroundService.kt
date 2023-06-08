@@ -214,8 +214,6 @@ class MyForegroundService : LifecycleService() {
         return START_STICKY
     }
 
-    var onStartGetLovation: ((LocationDomModel) -> Unit)? = null
-
     override fun onDestroy() {
         super.onDestroy()
         repo.stopLocationUpdates()
